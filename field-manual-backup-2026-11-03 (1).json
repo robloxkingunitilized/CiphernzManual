@@ -1,0 +1,13 @@
+{
+  "app": "field-manual",
+  "version": 1,
+  "exported": "2026-11-03T14:33:13.382Z",
+  "data": {
+    "hunters_grimoire_state_v2": "{\"sun::rest::Game session — no guilt\":false,\"thu::normal::Goblet Squats\":false,\"thu::normal::Bulgarian Split Squats\":false,\"thu::normal::Standing Quad Stretch\":true}",
+    "hunters_grimoire_diff_v2": "{\"tue\":\"normal\",\"thu\":\"normal\"}",
+    "hunters_grimoire_log_v1": "{\"thu::normal::Seated Hamstring Stretch\":{\"weight\":\"34\",\"reps\":\"\"}}",
+    "hunters_grimoire_challenge_v1": "{\"thu::normal::Goblet Squats\":{\"circuit\":false,\"run\":false},\"thu::normal::Bulgarian Split Squats\":{\"run\":false,\"circuit\":false},\"thu::normal::Standing Quad Stretch\":{\"circuit\":true,\"run\":true}}",
+    "field_manual_schedule_v1": "ideal",
+    "field_manual_history_v1": "{\"thu::normal::Seated Hamstring Stretch\":{\"2026-11-03\":{\"w\":34,\"r\":null}}}"
+  }
+}
