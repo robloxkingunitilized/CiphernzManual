@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Field Manual — Weekly Operations</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,500&family=Barlow:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root{--ward:#3f6b52;--ward-bright:#5c9a76;--wr:63,107,82;}
+  :root{--void:#0b0e08;--char:#141a0f;--char2:#1b2314;--blood:#6b5a2a;--blood-bright:#c9a24a;--bone:#d6d9c4;--bone-dim:#8f9578;--sigil:#a9b85c;--sigil-dim:#5f6a30;--line:#2b3320;--line2:#232a19;--tab-a:#1f2815;--tab-b:#12170c;--ar:169,184,92;--br:107,90,42;}
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(var(--br),0.08), transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(var(--wr),0.06), transparent 60%),
+      var(--void);
+    color: var(--bone);
+    font-family: 'Barlow',Arial,sans-serif;
+    min-height: 100vh;
+    padding: 24px 14px 80px;
+    background-attachment: fixed;
+  }
+
+  body::before{
+    content:"";
+    position: fixed; inset:0;
+    pointer-events:none;
+    opacity:0.05;
+    background-image: repeating-linear-gradient(0deg, #000 0 2px, transparent 2px 4px);
+    z-index:0;
+  }
+
+  .wrap{max-width: 760px; margin: 0 auto; position:relative; z-index:1;}
+
+  header.title-block{
+    text-align:center;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--sigil-dim);
+    position: relative;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing: 0.35em;
+    font-size: 11px;
+    color: var(--blood-bright);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  h1{
+    font-family:'Black Ops One',Impact,sans-serif;
+    font-weight: 400;
+    font-size: clamp(28px, 6vw, 42px);
+    color: var(--sigil);
+    margin: 0 0 6px;
+    text-shadow: 0 0 18px rgba(var(--ar),0.35), 0 0 2px rgba(var(--ar),0.5);
+    letter-spacing: 0.03em;
+  }
+  .subtitle{
+    font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+    font-style: italic;
+    color: var(--bone-dim);
+    font-size: 14px;
+  }
+
+  .sigil-divider{
+    text-align:center; color: var(--sigil-dim); font-size: 18px; margin: 8px 0 18px; letter-spacing: 12px;
+  }
+
+  /* Week nav */
+  .week-nav{
+    display:flex; gap:6px; overflow-x:auto; padding-bottom: 6px; margin-bottom: 20px;
+    scrollbar-width: thin;
+  }
+  .day-tab{
+    flex: 0 0 auto;
+    font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+    font-weight:600;
+    font-size: 12.5px;
+    letter-spacing: 0.05em;
+    padding: 10px 14px;
+    background: var(--char);
+    border: 1px solid var(--line);
+    color: var(--bone-dim);
+    cursor:pointer;
+    text-transform: uppercase;
+    position:relative;
+    transition: all .2s ease;
+  }
+  .day-tab .roman{
+    display:block; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--sigil-dim); letter-spacing:2px; margin-bottom:3px;
+  }
+  .day-tab.active{
+    background: linear-gradient(180deg, var(--tab-a), var(--tab-b));
+    border-color: var(--sigil);
+    color: var(--sigil);
+    box-shadow: 0 0 12px rgba(var(--ar),0.15) inset, 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .day-tab.complete::after{
+    content:"✓";
+    position:absolute; top:2px; right:4px;
+    color: var(--ward-bright);
+    font-size:10px;
+  }
+  .day-tab:hover{ color: var(--bone); border-color: var(--sigil-dim); }
+
+  /* Day panel */
+  .panel{ display:none; }
+  .panel.active{ display:block; animation: fadeIn .35s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform: translateY(6px);} to{opacity:1; transform:none;} }
+
+  .day-header{
+    background: linear-gradient(135deg, rgba(var(--br),0.12), rgba(0,0,0,0));
+    border: 1px solid var(--blood);
+    border-left: 3px solid var(--blood-bright);
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .day-header h2{
+    font-family:'Black Ops One',Impact,sans-serif;
+    color: var(--bone);
+    font-size: 22px;
+    margin: 0 0 4px;
+  }
+  .day-header .flavor{
+    font-style: italic;
+    color: var(--bone-dim);
+    font-size: 14.5px;
+    line-height:1.5;
+  }
+  .day-header .meta{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--sigil);
+    margin-top: 10px;
+    letter-spacing: 0.03em;
+  }
+
+  .progress-bar{
+    height: 6px;
+    background: var(--char2);
+    border: 1px solid var(--line);
+    margin: 12px 0 0;
+    position:relative;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background: linear-gradient(90deg, var(--blood), var(--sigil));
+    width:0%;
+    transition: width .4s ease;
+    box-shadow: 0 0 8px rgba(var(--ar),0.5);
+  }
+
+  /* Difficulty selector */
+  .diff-selector{
+    display:flex;
+    gap:0;
+    margin-bottom: 18px;
+    border: 1px solid var(--sigil-dim);
+    background: var(--char);
+  }
+  .diff-btn{
+    flex:1;
+    text-align:center;
+    padding: 10px 6px;
+    font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+    font-size: 12px;
+    letter-spacing:0.06em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    cursor:pointer;
+    border-right: 1px solid var(--sigil-dim);
+    transition: all .2s ease;
+    position:relative;
+  }
+  .diff-btn:last-child{ border-right:none; }
+  .diff-btn .rank{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size: 9px;
+    color: var(--sigil-dim);
+    margin-top:2px;
+    letter-spacing:0.05em;
+  }
+  .diff-btn.active{
+    background: linear-gradient(180deg, rgba(var(--ar),0.15), transparent);
+    color: var(--sigil);
+  }
+  .diff-btn.active.easy{ box-shadow: inset 0 -2px 0 var(--ward-bright); }
+  .diff-btn.active.normal{ box-shadow: inset 0 -2px 0 var(--sigil); }
+  .diff-btn.active.hard{ box-shadow: inset 0 -2px 0 var(--blood-bright); }
+  .diff-btn.active.special{ box-shadow: inset 0 -2px 0 var(--blood-bright), inset 0 -5px 0 var(--sigil); }
+  .diff-btn:hover{ color: var(--bone); }
+
+  .section-label{
+    font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 12px;
+    color: var(--sigil-dim);
+    margin: 22px 0 4px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-label::after{
+    content:""; flex:1; height:1px; background: var(--sigil-dim); opacity:0.4;
+  }
+  .section-sigil{
+    flex: 0 0 auto;
+    width: 22px; height: 22px;
+    display:flex; align-items:center; justify-content:center;
+    color: var(--sigil);
+    opacity: 0.9;
+  }
+  .section-sigil svg{ width:100%; height:100%; display:block; }
+  .section-lore{
+    font-style: italic;
+    font-size: 13px;
+    color: var(--bone-dim);
+    margin: 0 0 10px;
+    line-height: 1.5;
+    opacity: 0.85;
+    border-left: 2px solid var(--sigil-dim);
+    padding-left: 10px;
+  }
+
+  .exercise{
+    background: var(--char);
+    border: 1px solid var(--line2);
+    margin-bottom: 8px;
+    transition: border-color .2s ease;
+  }
+  .exercise.done{
+    border-color: var(--ward);
+    background: linear-gradient(135deg, rgba(var(--wr),0.08), var(--char));
+  }
+  .ex-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding: 12px 14px;
+    cursor:pointer;
+  }
+  .checkbox{
+    flex: 0 0 auto;
+    width: 22px; height: 22px;
+    border: 1.5px solid var(--sigil-dim);
+    background: var(--void);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 14px;
+    color: var(--ward-bright);
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .checkbox:hover{ border-color: var(--sigil); }
+  .exercise.done .checkbox{
+    background: var(--ward); border-color: var(--ward-bright); color: var(--void);
+  }
+  .ex-name{
+    flex:1;
+    font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+    font-size: 15px;
+    color: var(--bone);
+    letter-spacing: 0.01em;
+  }
+  .exercise.done .ex-name{ color: var(--bone-dim); text-decoration: line-through; text-decoration-color: var(--ward); }
+  .ex-specs{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--sigil);
+    white-space: nowrap;
+  }
+  .expand-arrow{
+    color: var(--sigil-dim);
+    font-size: 11px;
+    transition: transform .2s ease;
+    flex: 0 0 auto;
+  }
+  .exercise.open .expand-arrow{ transform: rotate(90deg); }
+
+  .ex-details{
+    display:none;
+    padding: 4px 16px 18px 48px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--bone-dim);
+    border-top: 1px dashed var(--line2);
+  }
+  .exercise.open .ex-details{ display:block; }
+  .ex-details h4{
+    font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+    color: var(--sigil);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 12px 0 4px;
+  }
+  .ex-details h4:first-child{ margin-top: 10px; }
+  .ex-details .avoid{ color: #c98686; }
+  .ex-details ul{ margin: 4px 0; padding-left: 18px; }
+  .rest-note{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--sigil-dim);
+    margin-top: 8px;
+  }
+
+  .log-block{
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line2);
+  }
+  .log-row{
+    display:flex; gap: 10px; align-items:center; margin-top: 6px;
+  }
+  .log-field{
+    display:flex; flex-direction:column; gap:3px; flex:1;
+  }
+  .log-field label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--sigil-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .log-field input{
+    background: var(--void);
+    border: 1px solid var(--sigil-dim);
+    color: var(--bone);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 6px 8px;
+    width: 100%;
+    outline: none;
+  }
+  .log-field input:focus{ border-color: var(--sigil); }
+  .log-field input::placeholder{ color: var(--sigil-dim); }
+  .log-saved-hint{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--ward-bright);
+    margin-top: 4px;
+    height: 12px;
+    opacity: 0;
+    transition: opacity .3s ease;
+  }
+  .log-saved-hint.show{ opacity: 1; }
+
+  .cardio-block{
+    background: linear-gradient(135deg, rgba(var(--ar),0.08), var(--char));
+    border: 1px solid var(--sigil-dim);
+    padding: 16px;
+    margin-top: 16px;
+  }
+  .cardio-block h3{
+    font-family:'Black Ops One',Impact,sans-serif;
+    color: var(--sigil);
+    font-size: 16px;
+    margin: 0 0 6px;
+  }
+  .cardio-block p{ margin: 4px 0; font-size: 14px; color: var(--bone-dim); }
+  .cardio-block .target{ font-family:'JetBrains Mono', monospace; color: var(--blood-bright); font-size: 13px; }
+
+  .benchmark-grid{
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+    gap: 8px; margin-top: 14px;
+  }
+  .benchmark{
+    background: var(--void);
+    border: 1px solid var(--sigil-dim);
+    padding: 10px 12px;
+    text-align:center;
+  }
+  .benchmark .num{ font-family:'Black Ops One',Impact,sans-serif; color:var(--sigil); font-size:20px; display:block;}
+  .benchmark .lbl{ font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--bone-dim); text-transform:uppercase; letter-spacing:0.05em;}
+
+  .rest-day{
+    text-align:center; padding: 40px 20px;
+  }
+  .rest-day .sigil-big{ font-size: 48px; color: var(--sigil-dim); margin-bottom:16px; }
+  .rest-day h2{ font-family:'Black Ops One',Impact,sans-serif; color:var(--bone); font-size:26px; }
+  .rest-day p{ color: var(--bone-dim); font-size:15px; line-height:1.7; max-width: 460px; margin: 10px auto; font-style:italic; }
+  .rest-checklist{ text-align:left; max-width:320px; margin: 20px auto 0; }
+
+  .warmup-block{
+    background: var(--char2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--ward);
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    font-size: 13.5px;
+    color: var(--bone-dim);
+  }
+  .warmup-block h3{
+    font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ward-bright);
+    margin: 0 0 6px;
+  }
+  .warmup-block ul{ margin: 4px 0 0; padding-left: 18px; }
+
+  .reset-row{
+    text-align:center; margin-top: 30px; padding-top:16px; border-top:1px solid var(--line2);
+  }
+  .reset-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size: 11px;
+    background: none;
+    border: 1px solid var(--blood);
+    color: var(--blood-bright);
+    padding: 8px 16px;
+    cursor:pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .reset-btn:hover{ background: var(--blood); color: var(--bone); }
+
+  .sched-row{ display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:16px; text-align:center; }
+  .sched-btn{
+    font-family:'JetBrains Mono',monospace; font-size:11px; background:var(--char); border:1px solid var(--sigil);
+    color:var(--sigil); padding:9px 18px; cursor:pointer; letter-spacing:0.05em; text-transform:uppercase;
+  }
+  .sched-btn:hover{ background:var(--sigil); color:var(--void); }
+  .graph-block{ margin-top:14px; padding-top:12px; border-top:1px dashed var(--line); }
+  .graph-block h4{ margin-top:0; }
+  .graph-tabs{ display:flex; gap:6px; margin-bottom:8px; }
+  .graph-tab{ font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; background:var(--char2); color:var(--bone-dim); border:1px solid var(--line); padding:5px 12px; cursor:pointer; }
+  .graph-tab.on{ color:var(--sigil); border-color:var(--sigil); }
+  .graph-box svg{ width:100%; height:auto; display:block; background:var(--char); border:1px solid var(--line); }
+  .g-grid{ stroke:var(--line); stroke-width:1; }
+  .g-line{ fill:none; stroke:var(--sigil); stroke-width:2; stroke-linejoin:round; stroke-linecap:round; }
+  .g-dot{ fill:var(--blood-bright); stroke:var(--sigil); stroke-width:1.2; }
+  .g-txt{ fill:var(--bone-dim); font-family:'JetBrains Mono',monospace; font-size:9px; }
+  .graph-sum{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--bone-dim); margin-top:6px; letter-spacing:.03em; line-height:1.5; }
+  .graph-empty{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--bone-dim); line-height:1.5; padding:10px; border:1px dashed var(--line); }
+  .day-reset-row{ text-align:center; margin-top:26px; padding-top:14px; border-top:1px solid var(--line2); }
+  .backup-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:14px; }
+  .backup-msg{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--bone-dim); letter-spacing:0.04em; min-height:16px; margin-bottom:12px; }
+  .sched-note{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--bone-dim); letter-spacing:0.04em; line-height:1.5; }
+
+  footer.foot{
+    text-align:center; margin-top: 40px; color: var(--sigil-dim); font-family:'JetBrains Mono',monospace; font-size: 10px; letter-spacing:0.1em;
+  }
+
+  ::-webkit-scrollbar{ height:6px; width:6px; }
+  ::-webkit-scrollbar-thumb{ background: var(--sigil-dim); }
+  ::-webkit-scrollbar-track{ background: var(--char); }
+
+  body[data-branch="army"]{--void:#0b0e08;--char:#141a0f;--char2:#1b2314;--blood:#6b5a2a;--blood-bright:#c9a24a;--bone:#d6d9c4;--bone-dim:#8f9578;--sigil:#a9b85c;--sigil-dim:#5f6a30;--line:#2b3320;--line2:#232a19;--tab-a:#1f2815;--tab-b:#12170c;--ar:169,184,92;--br:107,90,42;}
+  body[data-branch="marines"]{--void:#0d0707;--char:#1a0f0f;--char2:#241414;--blood:#8a1c1c;--blood-bright:#d63030;--bone:#ece3d0;--bone-dim:#a08f85;--sigil:#e0b43c;--sigil-dim:#7a6224;--line:#3a2020;--line2:#2e1a1a;--tab-a:#2a1414;--tab-b:#170b0b;--ar:224,180,60;--br:138,28,28;}
+  body[data-branch="navy"]{--void:#060b14;--char:#0d1626;--char2:#131f36;--blood:#1c4f9c;--blood-bright:#4c8ee8;--bone:#e4ebf5;--bone-dim:#8b9ab3;--sigil:#e6edf7;--sigil-dim:#52678a;--line:#1f2f4d;--line2:#192740;--tab-a:#14223c;--tab-b:#0a1220;--ar:230,237,247;--br:28,79,156;}
+  body[data-branch="paras"]{--void:#0a0709;--char:#171015;--char2:#20161c;--blood:#6e1a35;--blood-bright:#b02e55;--bone:#e6dfe3;--bone-dim:#9a8a94;--sigil:#e3cf9a;--sigil-dim:#7a6c45;--line:#36202b;--line2:#2b1a23;--tab-a:#24141c;--tab-b:#130a0f;--ar:227,207,154;--br:110,26,53;}
+  body[data-branch="airforce"]{--void:#070b0f;--char:#101820;--char2:#16212b;--blood:#8a3f12;--blood-bright:#e8782e;--bone:#e2e9ef;--bone-dim:#8798a6;--sigil:#5cc8e8;--sigil-dim:#2f6b80;--line:#1f3040;--line2:#19283a;--tab-a:#14222d;--tab-b:#0a131a;--ar:92,200,232;--br:138,63,18;}
+  body[data-branch="specops"]{--void:#050505;--char:#101010;--char2:#171717;--blood:#5c1010;--blood-bright:#c0262d;--bone:#d4d4d4;--bone-dim:#858585;--sigil:#c9a66b;--sigil-dim:#6b5a38;--line:#2a2a2a;--line2:#222222;--tab-a:#1a1a1a;--tab-b:#0c0c0c;--ar:201,166,107;--br:92,16,16;}
+  body[data-branch="medical"]{--void:#080c0c;--char:#121a1a;--char2:#182222;--blood:#8a1c28;--blood-bright:#e04050;--bone:#e6efee;--bone-dim:#8aa09e;--sigil:#5fd0c0;--sigil-dim:#2f6b64;--line:#1f3331;--line2:#1a2b29;--tab-a:#14221f;--tab-b:#0a1412;--ar:95,208,192;--br:138,28,40;}
+  .day-tab[data-day="mon"]{--tc:#a9b85c;}.day-tab[data-day="tue"]{--tc:#e0b43c;}.day-tab[data-day="wed"]{--tc:#e6edf7;}.day-tab[data-day="thu"]{--tc:#e3cf9a;}.day-tab[data-day="fri"]{--tc:#5cc8e8;}.day-tab[data-day="sat"]{--tc:#c9a66b;}.day-tab[data-day="sun"]{--tc:#5fd0c0;}
+  .day-tab{ border-bottom:2px solid var(--tc, var(--line)); }
+  header.title-block{ border-bottom:none; }
+  header.title-block::after{ content:""; position:absolute; left:0; right:0; bottom:0; height:5px; background:repeating-linear-gradient(135deg,var(--sigil) 0 8px,var(--blood) 8px 16px); opacity:.85; }
+  .ex-name{ font-size:17px; font-weight:600; letter-spacing:.02em; }
+  .day-header h2,.cardio-block h3,.rest-day h2{ font-weight:400; letter-spacing:.04em; }
+  .section-label{ font-size:13.5px; } .day-tab{ font-size:14px; }
+  .section-lore,.day-header .flavor{ font-size:15px; }
+
+  .diff-btn{ letter-spacing:.03em; }
+  .bonus-block{ display:none; padding:10px 12px 12px; border-top:1px dashed var(--sigil-dim); background:rgba(var(--br),0.10); }
+  .exercise.done .bonus-block{ display:block; }
+  .bonus-title{ font-family:'Barlow Condensed','Arial Narrow',sans-serif; font-size:14px; letter-spacing:.1em; text-transform:uppercase; color:var(--blood-bright); margin-bottom:8px; }
+  .bonus-sum{ color:var(--bone-dim); letter-spacing:.03em; text-transform:none; font-size:13px; margin-left:6px; }
+  .bonus-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+  .bonus-name{ font-family:'Barlow Condensed','Arial Narrow',sans-serif; font-size:16px; color:var(--bone); }
+  .bonus-pill{ min-width:46px; padding:9px 0; background:var(--char2); color:var(--bone-dim); border:1px solid var(--sigil-dim); font-family:'JetBrains Mono',monospace; font-size:13px; cursor:pointer; }
+  .bonus-pill.on{ background:var(--blood); border-color:var(--blood-bright); color:var(--bone); box-shadow:0 0 0 1px var(--blood-bright) inset; }
+  .drill-name{ flex:1; line-height:1.25; }
+  .drill-name small{ display:block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--bone-dim); letter-spacing:.03em; margin-top:2px; }
+  .drill-pill{ min-width:64px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="title-block">
+    <div class="eyebrow">Army · Weekly Discipline</div>
+    <h1>The Field Manual</h1>
+    <div class="subtitle">"Train hard. Carry the load. Finish the mission."</div>
+  </header>
+  <div class="sigil-divider">★ ★ ★</div>
+
+  <div class="sched-row">
+    <button class="sched-btn" id="schedBtn" type="button"></button>
+    <div class="sched-note" id="schedNote"></div>
+  </div>
+
+  <nav class="week-nav" id="weekNav"></nav>
+
+  <div id="panels"></div>
+
+  <div class="reset-row">
+    <div class="backup-row">
+      <button class="sched-btn" id="exportBtn" type="button">Export Backup</button>
+      <button class="sched-btn" id="importBtn" type="button">Import Backup</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div>
+    <div class="backup-msg" id="backupMsg"></div>
+    <button class="reset-btn" id="resetBtn">Clear the Board (Reset This Week)</button>
+  </div>
+
+  <footer class="foot">SAVED AUTOMATICALLY · YOUR LOG PERSISTS BETWEEN SESSIONS</footer>
+</div>
+
+<script>
+/* ============================================================
+   DIFFICULTY TIERS: easy (Novice), normal (Hunter), hard (Man of Letters)
+   Each day has 3 full exercise lists, same section/slot structure.
+   ============================================================ */
+
+const DAY_ORDER = ["mon","tue","wed","thu","fri","sat","sun"];
+
+/* Schedule layer: each weekday slot points at a workout (content key).
+   Workouts keep their own keys, so checkmarks and logs follow the workout when moved. */
+const WEEKDAYS = [
+  {slot:"mon", label:"Monday",    roman:"I"},
+  {slot:"tue", label:"Tuesday",   roman:"II"},
+  {slot:"wed", label:"Wednesday", roman:"III"},
+  {slot:"thu", label:"Thursday",  roman:"IV"},
+  {slot:"fri", label:"Friday",    roman:"V"},
+  {slot:"sat", label:"Saturday",  roman:"VI"},
+  {slot:"sun", label:"Sunday",    roman:"VII"}
+];
+const SCHEDULES = {
+  original: {mon:"mon", tue:"tue", wed:"wed", thu:"thu", fri:"fri", sat:"sat", sun:"sun"},
+  ideal:    {mon:"tue", tue:"thu", wed:"wed", thu:"mon", fri:"fri", sat:"sat", sun:"sun"}
+};
+const SCHED_KEY = "field_manual_schedule_v1";
+let schedMode = "original";
+try{ if(localStorage.getItem(SCHED_KEY)==="ideal") schedMode = "ideal"; }catch(e){}
+let SCHEDULE = SCHEDULES[schedMode];
+const STORAGE_KEY = "hunters_grimoire_state_v2";
+const DIFF_KEY = "hunters_grimoire_diff_v2";
+const LOG_KEY = "hunters_grimoire_log_v1";
+const DIFF_LABELS = {easy:"Recruit", normal:"Operator", hard:"Elite", special:"Spec Ops"};
+const DIFF_ORDER = ["easy","normal","hard","special"];
+
+function ex(name, specs, how, avoid){ return {name, specs, how, avoid}; }
+
+/* ============================================================
+   SIGIL ICONS — simple line-art occult glyphs per muscle group
+   ============================================================ */
+const SIGILS = {
+  grip: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="12" r="9"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="2.5"/></svg>`,
+  biceps: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 2 L20 8 L17 21 L7 21 L4 8 Z"/><path d="M12 2 L12 21"/><path d="M7 21 L12 15 L17 21"/></svg>`,
+  triceps: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 2 L21 9 L17 22 L7 22 L3 9 Z"/><path d="M12 2 L7 22 M12 2 L17 22"/></svg>`,
+  traps: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 20 L12 3 L22 20 Z"/><path d="M12 3 L12 20"/><path d="M7 20 L12 12 L17 20"/></svg>`,
+  chest: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="9" r="5.5"/><circle cx="16" cy="9" r="5.5"/><path d="M12 14 L12 21 M8 21 L16 21"/></svg>`,
+  back: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 2 L20 6 L18 21 L6 21 L4 6 Z"/><path d="M12 2 L12 21"/><path d="M4 6 L12 11 L20 6"/></svg>`,
+  shoulders: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="8" r="4"/><circle cx="18" cy="8" r="4"/><path d="M6 12 L6 21 M18 12 L18 21 M2 16 L22 16"/></svg>`,
+  abs: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M6 9 L18 9 M6 15 L18 15 M12 3 L12 21"/></svg>`,
+  legs: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 2 L12 12 L7 22 M12 12 L17 22"/><circle cx="12" cy="2" r="2"/></svg>`,
+  hamstring: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 3 C 9 10, 15 10, 15 17 C 15 20, 12 22, 9 21"/><path d="M15 3 L15 8 M9 17 L6 21"/></svg>`,
+  stretch: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="5" r="2.5"/><path d="M12 7.5 L12 15 M12 15 L6 21 M12 15 L18 9 M12 10 L18 6"/></svg>`,
+  strength: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="10" width="4" height="4"/><rect x="18" y="10" width="4" height="4"/><path d="M6 12 L18 12" stroke-width="2.2"/><rect x="8" y="8" width="2" height="8"/><rect x="14" y="8" width="2" height="8"/></svg>`,
+  grinder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 2 L14 9 L21 9 L15 13 L17 20 L12 16 L7 20 L9 13 L3 9 L10 9 Z"/></svg>`,
+};
+
+function sigilFor(sectionLabel){
+  const l = sectionLabel.toLowerCase();
+  if(l.includes('forearm') || l.includes('grip')) return SIGILS.grip;
+  if(l.includes('bicep')) return SIGILS.biceps;
+  if(l.includes('tricep')) return SIGILS.triceps;
+  if(l.includes('trap')) return SIGILS.traps;
+  if(l.includes('upper chest') || l.includes('lower chest') || l.includes('chest')) return SIGILS.chest;
+  if(l.includes('back') || l.includes('v-taper')) return SIGILS.back;
+  if(l.includes('shoulder')) return SIGILS.shoulders;
+  if(l.includes('ab') || l.includes('core') || l.includes('sealing')) return SIGILS.abs;
+  if(l.includes('hamstring') || l.includes('calv')) return SIGILS.hamstring;
+  if(l.includes('leg') || l.includes('quad') || l.includes('glute')) return SIGILS.legs;
+  if(l.includes('stretch')) return SIGILS.stretch;
+  if(l.includes('compound') || l.includes('functional')) return SIGILS.strength;
+  if(l.includes('grinder')) return SIGILS.grinder;
+  return SIGILS.strength;
+}
+
+const DATA = {
+
+mon: {
+  label:"Monday", roman:"I", name:"Rite of the Iron Arm",
+  flavor:"The arms that swing the blade must never fail first. Forearms, biceps, triceps, traps — built wide enough to fill a doorway a wraith would think twice before crossing.",
+  metaBase:"Arms & Traps · Width Focus",
+  warmup:["2 min arm circles, forward and back","Wrist rotations, 20 each direction","Band pull-aparts or light dead hangs, 3×15 sec","Light dumbbell curls, 1 set of 15 to prime the joints"],
+  sectionsByDiff:{
+    easy:[
+      {label:"Forearms & Grip", lore:"Even a novice hunter learns: the grip fails before the muscle does. Start here.", exercises:[
+        ex("Wrist Curls (Light Dumbbell)","3×12",["Forearm on your thigh, wrist hanging off the edge, palm up.","Curl the dumbbell up slowly using only the wrist.","Lower with control past neutral."],"Don't use a weight so heavy you have to jerk it — small joints, small loads."),
+        ex("Reverse Wrist Curls (Light)","3×12",["Same position, palm facing down.","Curl the back of the hand upward.","Control the descent."],"Keep the motion small — don't overextend to compensate for light weight."),
+        ex("Dead Hangs","3×15-20 sec",["Hang from the bar with straight arms, shoulders relaxed but engaged.","Keep core tight, avoid swinging."],"Don't let all tension collapse into the shoulder joint — engage your lats slightly."),
+        ex("Static Farmer Hold (Light Dumbbells)","3×20 sec",["Hold two light-to-moderate dumbbells at your sides.","Stand tall, shoulders back, simply hold."],"Don't let shoulders round forward."),
+      ]},
+      {label:"Biceps", lore:"The bicep is the hunter's proof of a clean pull — through a door, a trapdoor, a rope ladder into the dark.", exercises:[
+        ex("Standing Dumbbell Curl (Light)","3×12",["Elbows pinned to sides, curl without swinging.","Squeeze at the top, lower slowly."],"No swinging the torso to heave the weight."),
+        ex("Hammer Curl (Light)","3×12",["Neutral grip, curl straight up, elbows fixed.","Lower with control."],"Don't let elbows drift forward."),
+        ex("Seated Dumbbell Curl","3×10",["Sit on a bench, back straight.","Curl one arm at a time, avoiding body English.","Lower fully each rep."],"Don't lean back to assist the lift."),
+      ]},
+      {label:"Triceps", lore:"The push that seals a door, that finishes a swing — small muscle, essential job.", exercises:[
+        ex("Overhead Dumbbell Extension (Light)","3×10",["One dumbbell held overhead with both hands.","Lower behind the head bending only the elbows.","Press back up."],"Keep elbows pointed forward, not flared."),
+        ex("Bench Dips (Knees Bent)","3×12",["Hands on a bench behind you, knees bent, feet flat.","Lower hips toward the floor, bending elbows.","Press back to extension."],"Don't lower past a 90° elbow bend if you feel shoulder pinching."),
+        ex("Close-Grip Push-ups (Knees Down)","3×10",["Knees down, hands close together under chest.","Lower with elbows tucked close to the body.","Press back up."],"Don't flare elbows out to the sides."),
+      ]},
+      {label:"Traps & Width", lore:"Shoulders wide as a warded doorway — the shape that tells a room you're not easy prey.", exercises:[
+        ex("Dumbbell Shrugs (Light)","3×15",["Hold light-moderate dumbbells at your sides.","Shrug straight up, pause, lower slowly."],"No rolling motion — straight up and down only."),
+        ex("Assisted/Band Pull-ups","3×max reps",["Use a resistance band looped on the bar for assistance, or do negatives (jump up, lower slowly).","Pull chest toward the bar."],"Don't let the band do all the work — still drive with your back."),
+        ex("Wide Push-ups","3×12",["Hands wider than shoulder-width, lower chest to floor.","Press back to full extension."],"Don't let hips sag."),
+      ]},
+    ],
+    normal:[
+      {label:"Forearms & Grip", lore:"A hunter's grip is the last thing standing between them and whatever's got them by the arm.", exercises:[
+        ex("Wrist Curls (Dumbbell)","4×15",["Sit, forearm resting on your thigh or a bench, wrist hanging off the edge.","Hold dumbbell, palm up, curl wrist upward slowly.","Lower with control past neutral for a full stretch."],"Don't use a heavy weight and jerk the movement — wrist joints are small and injure easily under momentum."),
+        ex("Reverse Wrist Curls","4×15",["Same position as wrist curls, but palm facing down.","Curl the back of the hand upward.","Control the descent fully."],"Avoid rounding the wrist too far back; keep the motion small and controlled."),
+        ex("Farmer's Grip Hold (Dumbbells)","4×30-40 sec",["Hold two heavy dumbbells at your sides, shoulders back.","Simply hold for time, resisting the urge to let them swing.","Rest fully between sets."],"Don't let shoulders round forward — stay tall to protect the lower back."),
+        ex("Dead Hangs (Pull-up Bar)","4×30-45 sec",["Hang fully from the bar, arms straight, shoulders relaxed but engaged.","Keep core tight, avoid swinging."],"Don't let all the tension collapse into your shoulder joints — engage your lats slightly."),
+      ]},
+      {label:"Biceps", lore:"Every rune circle, every summoning trap starts with a steady arm holding chalk or a blade.", exercises:[
+        ex("Standing Dumbbell Curl","4×12",["Stand tall, elbows pinned to your sides.","Curl the dumbbells up without swinging the torso.","Squeeze at the top, lower slowly (2-3 sec)."],"Avoid swinging your hips/back to heave the weight up — this shifts work off the biceps."),
+        ex("Hammer Curl","4×12",["Hold dumbbells with a neutral (palms facing in) grip.","Curl straight up keeping wrists neutral.","Targets brachialis for arm thickness."],"Don't let elbows drift forward — keep them close to your torso."),
+        ex("Concentration Curl","3×12 each arm",["Sit on a bench, elbow braced against inner thigh.","Curl the dumbbell up slowly, focusing on the squeeze.","Full stretch at the bottom."],"Don't rest the weight completely at the bottom — keep slight tension to protect the elbow."),
+        ex("Incline Dumbbell Curl","3×12",["Lie back on an incline bench (30-45°), arms hanging straight down.","Curl with elbows fixed in place.","This gives a deep stretch on the long head of the bicep."],"Don't let elbows travel forward as you lift — that shifts tension to the shoulders."),
+        ex("Cross-Body Hammer Curl","3×12 each arm",["Neutral grip, curl the dumbbell up and across toward the opposite shoulder.","Control both the lift and lowering phase."],"Avoid rotating your torso to assist the curl."),
+      ]},
+      {label:"Triceps", lore:"The follow-through on a swing that ends the fight — arms that finish what they start.", exercises:[
+        ex("Overhead Dumbbell Extension","4×12",["Hold one dumbbell with both hands overhead, arms straight.","Lower behind your head by bending only at the elbow.","Press back up to full extension."],"Don't flare your elbows outward — keep them pointed forward, close to your ears."),
+        ex("Dumbbell Skull Crushers","4×12",["Lie on a bench or floor, dumbbells extended above chest.","Bend elbows to lower weights toward your forehead/behind head.","Extend back up without locking out violently."],"Avoid letting elbows splay outward, and never lower the weight uncontrolled toward your face."),
+        ex("Close-Grip Bar Press","4×10",["Using the barbell, grip just inside shoulder width.","Lower the bar to your lower chest, elbows tracking close to the body.","Press up focusing on tricep contraction."],"Don't grip too narrow — this stresses the wrists. Keep it just inside shoulder-width."),
+        ex("Dumbbell Kickbacks","3×15 each arm",["Hinge forward at the hips, upper arm parallel to the floor.","Extend the forearm back until the arm is straight.","Squeeze the tricep at full extension."],"Don't swing the weight using shoulder momentum — isolate the elbow joint."),
+        ex("Diamond Push-ups","3×max reps",["Hands together under your chest forming a diamond shape.","Lower chest to hands, keeping elbows tucked.","Press back to full extension."],"Don't let hips sag — keep a straight plank line throughout."),
+      ]},
+      {label:"Traps & Width", lore:"The shape of shoulders that fill a doorway — a warding sigil made of muscle instead of chalk.", exercises:[
+        ex("Dumbbell Shrugs","4×15",["Hold heavy dumbbells at your sides.","Elevate shoulders straight up toward your ears.","Pause briefly at the top, lower slowly."],"Don't roll your shoulders in circles — straight up and down only."),
+        ex("Wide-Grip Pull-ups","4×max reps",["Grip the bar wider than shoulder width.","Pull your chest toward the bar, driving elbows down and out.","Lower with full control to a dead hang."],"Don't kip or swing to cheat reps — control builds the width, not momentum."),
+        ex("Upright Rows (Dumbbell)","3×12",["Hold dumbbells in front of thighs.","Pull straight up along the body to chest height, elbows leading and high.","Lower slowly."],"Stop the pull at shoulder height — going higher can pinch the shoulder joint."),
+      ]},
+    ],
+    hard:[
+      {label:"Forearms & Grip", lore:"The old Letters said the grip is the first thing a hunt tests, and the last thing it forgives failing.", exercises:[
+        ex("Weighted Wrist Curls (Barbell)","4×15",["Sit, forearms on thighs, barbell hanging at fingertips.","Curl the bar up using only the wrists.","Lower for a deep stretch."],"Don't bounce the bar at the bottom — control the full stretch."),
+        ex("Behind-the-Back Barbell Wrist Curls","4×15",["Hold the bar behind your back, arms straight down.","Curl using only the wrists.","Slow and controlled throughout."],"Keep the rest of the body still — no leg drive to assist."),
+        ex("Heavy Farmer's Carry","4×40m",["Heaviest dumbbells you can hold with good posture.","Walk the distance, shoulders back, core braced.","Set down with control."],"Don't let the weight pull your shoulders forward — reset posture if it slips."),
+        ex("Weighted Dead Hangs","4×40-60 sec",["Attach a light weight via a belt or hold a dumbbell between your feet.","Hang with straight arms, engaged lats.","Avoid swinging."],"Don't add weight before bodyweight hangs are comfortable past 45 seconds."),
+        ex("Plate Pinch Hold","3×30 sec",["Pinch a weight plate (smooth sides together) between fingers and thumb.","Hold at your side without letting it slip.","Switch hands."],"Don't drop the plate on your foot — hold over a mat or soft surface."),
+      ]},
+      {label:"Biceps", lore:"Men of Letters didn't just fight — they hauled tomes, dragged gates shut, held ropes over pits nobody climbed back out of.", exercises:[
+        ex("Heavy Standing Dumbbell Curl","4×10",["Elbows pinned to sides, heaviest controlled weight.","Curl up without swinging, squeeze hard at top.","Lower slowly (3 sec)."],"No swinging the torso — if you need to swing, the weight is too heavy."),
+        ex("Heavy Hammer Curl","4×10",["Neutral grip, heavy dumbbells.","Curl straight up, elbows fixed.","Control the negative."],"Don't let elbows drift forward under heavier load."),
+        ex("21s (Bicep Curl Partials + Full)","3×21 (7 bottom-half, 7 top-half, 7 full)",["7 reps bottom half of the curl only.","7 reps top half only.","7 full range reps to finish."],"Don't rush the partials — they're brutal specifically because they're slow."),
+        ex("Drag Curl","3×10",["Curl the dumbbells up while dragging them along your torso, elbows drifting back.","Squeeze at the top.","Lower along the same path."],"Don't turn this into a normal curl — the elbows should travel backward, not stay fixed."),
+        ex("Single-Arm Preacher Curl (Heavy)","3×10 each arm",["Upper arm braced on an inclined surface.","Curl heavy, controlled, full stretch at bottom.","No elbow lift off the surface."],"Don't let the elbow lift — that's the form breaking down."),
+      ]},
+      {label:"Triceps", lore:"The killing blow, the door slammed shut on something that shouldn't get out — that's a triceps job.", exercises:[
+        ex("Heavy Skull Crushers","4×10",["Lie on a bench, dumbbells or bar extended above chest.","Lower to forehead/behind head with control.","Extend up without slamming the lockout."],"Never let the weight drop uncontrolled toward your face."),
+        ex("Weighted Dips","4×10",["Add weight via belt if bodyweight dips are too easy.","Lower until upper arms are near-parallel to floor.","Press to full extension."],"Don't go too deep if you feel shoulder strain — reduce range."),
+        ex("Close-Grip Heavy Bench Press","4×8",["Grip just inside shoulder width on the barbell.","Lower to lower chest, elbows tracking close.","Press up hard."],"Use a spotter or safety pins — this is a heavy compound lift."),
+        ex("Single-Arm Overhead Extension (Heavy)","3×10 each arm",["One dumbbell overhead in one hand.","Lower behind the head, elbow pointed forward.","Press back to extension."],"Keep your torso still — don't lean to compensate for the imbalance."),
+        ex("Diamond Push-ups (Feet Elevated)","3×max",["Feet on a bench, hands in diamond position under chest.","Lower with elbows tucked.","Press back up."],"Don't let hips sag or pike — full-body tension throughout."),
+      ]},
+      {label:"Traps & Width", lore:"The width the old hunters wore like armor — built so wide the thing in the dark hesitates first.", exercises:[
+        ex("Heavy Barbell Shrugs","4×12",["Hold the barbell in front of your thighs.","Shrug straight up hard, pause at the top.","Lower slowly."],"Don't roll the shoulders — vertical movement only, and don't overload past what you can control."),
+        ex("Weighted Pull-ups","4×6-8",["Add weight via belt or held between the feet.","Pull chin over the bar with control.","Full dead hang each rep."],"Don't add weight before bodyweight form is solid past 8 clean reps."),
+        ex("Behind-the-Neck Press (Light, Careful)","3×10",["Only if shoulder mobility allows — press a barbell overhead from behind the neck.","Lower to a comfortable depth, not forcing range.","Press back up."],"Skip this one entirely if you have any shoulder impingement history — substitute a second set of overhead press instead."),
+      ]},
+    ],
+  },
+},
+
+tue: {
+  label:"Tuesday", roman:"II", name:"Rite of the Broken Ribcage",
+  flavor:"A chest built for the beast to shatter its claws against, and a back that carves the shape of a blade from your shoulders down. The V is a warding sigil in itself.",
+  metaBase:"Chest & Back (V-Taper) · +12 min Cardio",
+  warmup:["2 min arm circles and shoulder rolls","Band pull-aparts, 2×15","Push-up to downward dog, 8 reps","Light incline press, 1 set of 12 to prime the joints"],
+  sectionsByDiff:{
+    easy:[
+      {label:"Upper Chest", lore:"The chestplate every hunter needs — soft steel earned one rep at a time.", exercises:[
+        ex("Incline Push-ups (Hands on Bench)","3×12",["Hands on a raised bench, feet on the floor.","Lower chest toward the bench, elbows at 45°.","Press back up."],"Don't let hips sag — keep a straight line head to heel."),
+        ex("Incline Dumbbell Press (Light)","3×12",["Bench at 30-45°.","Press light dumbbells up until nearly touching overhead.","Lower with control."],"Don't set the incline too steep — that shifts work to the shoulders."),
+        ex("Incline Dumbbell Flyes (Light)","3×10",["Arms extended above chest with a slight bend.","Lower out to the sides until you feel a light stretch.","Bring back together."],"Use light weight here — over-stretching the shoulder is the main risk."),
+      ]},
+      {label:"Lower Chest", lore:"The base of the plate, the part that takes the first hit.", exercises:[
+        ex("Standard Push-ups","3×max reps",["Hands under shoulders, body in a straight line.","Lower chest to the ground.","Press back up fully."],"Don't let hips sag or pike upward."),
+        ex("Flat Dumbbell Press (Light)","3×12",["Lie flat, press dumbbells up from chest height.","Lower with control to chest level."],"Don't flare elbows to a full 90° — keep a moderate angle."),
+        ex("Dumbbell Pullover (Light)","3×10",["Lie perpendicular on a bench, hips low.","Hold one light dumbbell with both hands above your chest.","Lower behind your head in an arc, then pull back over."],"Keep a slight elbow bend — locking out stresses the elbow."),
+      ]},
+      {label:"Back (V-Taper)", lore:"The line the coat hangs from — every warding sigil needs a strong back to wear it on.", exercises:[
+        ex("Bent-Over Dumbbell Row","3×12",["Hinge at hips to ~45°, flat back.","Pull dumbbells to your ribcage.","Lower with control."],"Don't round your lower back — keep your chest up."),
+        ex("Assisted Pull-ups / Negatives","3×max",["Use a band for assistance, or jump up and lower slowly (5+ sec) for negatives.","Focus on the descent."],"Don't let go abruptly at the top — control the whole rep."),
+      ]},
+    ],
+    normal:[
+      {label:"Upper Chest", lore:"Where a hunter takes the hit and keeps standing — built one incline press at a time.", exercises:[
+        ex("Incline Dumbbell Press","4×12",["Set bench to 30-45° incline.","Press dumbbells up and slightly inward until they nearly touch overhead.","Lower with control to chest level."],"Avoid setting the incline too steep (past 45°) — this shifts work to the shoulders instead of upper chest."),
+        ex("Incline Dumbbell Flyes","3×12",["On the incline bench, start with arms extended above chest, slight elbow bend.","Lower arms out to the sides in an arc until you feel a stretch.","Bring back together, squeezing the chest."],"Don't lower too far or use heavy weight — over-stretching the shoulder joint risks injury."),
+        ex("Barbell Incline Press","4×10",["On the incline bench, grip the bar slightly wider than shoulder width.","Lower to the upper chest, elbows at roughly 45° from the torso.","Press up to full extension."],"Don't flare elbows to 90° — that increases shoulder strain."),
+      ]},
+      {label:"Lower Chest", lore:"The foundation stones of the sigil — nothing above holds without this.", exercises:[
+        ex("Decline Push-ups","4×max reps",["Feet elevated on a bench or step, hands on the floor under shoulders.","Lower chest toward the ground, elbows at ~45°.","Press back up fully."],"Don't let hips sag or pike upward — keep a straight line."),
+        ex("Flat Barbell Bench Press","4×10",["Lie flat, grip bar just wider than shoulder-width.","Lower to mid-chest with control, elbows at ~45°.","Drive the bar up to full lockout."],"Never bounce the bar off your chest, and always use a spotter or safety bars when going heavy."),
+        ex("Dumbbell Pullover","3×12",["Lie perpendicular on a bench, upper back supported, hips low.","Hold one dumbbell with both hands above your chest.","Lower it back behind your head in an arc, then pull back over."],"Keep a slight elbow bend throughout — locking them out stresses the elbow joints."),
+      ]},
+      {label:"Back (V-Taper)", lore:"The blade-shape a hunter carves into their own frame — the taper that says 'don't.'", exercises:[
+        ex("Bent-Over Barbell Row","4×10",["Hinge at the hips to ~45°, back flat, knees soft.","Pull the bar toward your lower ribcage, elbows driving back.","Lower with control."],"Don't round your lower back — this is the #1 cause of injury on this lift. Keep your chest up."),
+        ex("Wide-Grip Lat Pulldown / Pull-up","4×max/10",["Grip wide, pull elbows down and back, chest toward the bar.","Squeeze shoulder blades together at the bottom.","Control the return to full stretch."],"Don't lean back excessively to cheat the pull — keep the torso mostly upright."),
+      ]},
+    ],
+    hard:[
+      {label:"Upper Chest", lore:"The Men of Letters didn't train for looks — a chest this hard turns a blade or a claw.", exercises:[
+        ex("Barbell Incline Press (Heavy)","5×8",["Bar racked at incline, grip slightly wider than shoulders.","Lower to upper chest, elbows ~45°.","Drive up to full lockout."],"Use a spotter or safety pins on heavy sets — never skip this."),
+        ex("Incline Dumbbell Press (Heavy)","4×10",["Heaviest controlled dumbbells at 30-45° incline.","Press up and slightly inward.","Lower slow (3 sec) to chest level."],"Don't let the incline creep past 45° as fatigue sets in — that shifts load to the shoulder."),
+        ex("Incline Flyes (Slow Tempo)","4×12",["Arms extended above chest, slight bend.","Lower out to the sides over a full 4 seconds.","Squeeze back together."],"Slow tempo means lighter weight than you'd expect — ego-lifting here risks the shoulder."),
+      ]},
+      {label:"Lower Chest", lore:"The plate that's taken the most hits and never cracked.", exercises:[
+        ex("Weighted Push-ups (Plate on Back)","4×max",["Have a plate placed on your upper back by a partner, or use a weighted vest.","Lower chest to floor, elbows at 45°.","Press back up fully."],"Don't let hips sag under the added load — brace the core hard."),
+        ex("Flat Barbell Bench Press (Heavy)","5×5",["Grip just wider than shoulder-width.","Lower to mid-chest with control.","Drive to full lockout."],"Never bounce the bar, and always use a spotter or safety pins at this intensity."),
+        ex("Weighted Dumbbell Pullover","4×10",["Heavier dumbbell, perpendicular on a bench, hips low.","Lower behind your head in a controlled arc.","Pull back over to above the chest."],"Keep the elbow bend consistent — locking out under heavier load risks the elbow joint."),
+      ]},
+      {label:"Back (V-Taper)", lore:"The blade-taper finished — shoulders wide, waist narrow, exactly the shape a ward is drawn in.", exercises:[
+        ex("Heavy Barbell Rows","5×8",["Hinge to ~45°, flat back, heavier load.","Pull the bar to your lower ribcage.","Lower with full control."],"Don't round your back to move more weight — drop the load instead, no exceptions."),
+        ex("Weighted Pull-ups","4×6-8",["Add weight via belt or held between feet.","Pull chin over the bar.","Full dead hang each rep."],"Don't add weight before strict bodyweight form is solid."),
+        ex("Single-Arm Dumbbell Row (Heavy)","4×10 each arm",["One knee and hand on a bench, other foot planted.","Row the dumbbell to your hip, elbow driving back.","Lower with control."],"Don't rotate your torso to help the pull — keep hips and shoulders square."),
+      ]},
+    ],
+  },
+  cardio:{
+    title:"Double-Time — Cardio Drill",
+    lines:["Run or jog immediately after weights, or as a separate session if preferred.","Goal: cover 2.2 km within the 12-minute window.","Pace yourself — start controlled, build speed in the final third."],
+    target:"TARGET: 2.2 KM / 12:00"
+  },
+},
+
+wed: {
+  label:"Wednesday", roman:"III", name:"Rite of the Watching Eye",
+  flavor:"Shoulders that carry the weight of every ward, a core that holds even when struck, and traps that finish what Monday started. Balance is its own kind of protection.",
+  metaBase:"Shoulders, Abs & Traps",
+  warmup:["Arm circles, 1 min each direction","Cat-cow stretch, 8 reps","Bird-dogs, 10 each side","Light lateral raises, 1 set of 15 to prime the shoulders"],
+  sectionsByDiff:{
+    easy:[
+      {label:"Shoulders", lore:"The watching eye sits on the shoulders — steady, unshaking, never turning away first.", exercises:[
+        ex("Dumbbell Overhead Press (Light)","3×10",["Stand or sit, dumbbells at shoulder height, palms forward.","Press up until arms are extended.","Lower to shoulder height."],"Don't arch your lower back — keep your core braced."),
+        ex("Lateral Raises (Light)","3×12",["Dumbbells at your sides, slight elbow bend.","Raise arms out to the sides to shoulder height.","Lower slowly."],"No swinging — light weight with strict form matters more here than load."),
+        ex("Front Raises (Light)","3×10",["Dumbbells in front of thighs.","Raise to shoulder height.","Lower with control."],"Don't raise above shoulder height."),
+      ]},
+      {label:"Abs & Core", lore:"The core that holds when something grabs you and doesn't let go.", exercises:[
+        ex("Plank Hold","3×30 sec",["Forearms down, straight line head to heels.","Brace core and glutes.","Breathe steadily."],"Don't let hips sag or pike up."),
+        ex("Knee Raises (Hanging)","3×10",["Hang from the bar.","Raise knees toward your chest.","Lower with control, no swinging."],"Don't use momentum to fling the knees up."),
+        ex("Bicycle Crunches","3×15 each side",["Lying down, hands behind head.","Opposite elbow to opposite knee in a slow pedal motion.","Controlled tempo."],"Don't pull on your neck — let the abs do the work."),
+      ]},
+      {label:"Traps & Upper Back", lore:"Small daily wardings — the traps hold the whole structure up.", exercises:[
+        ex("Dumbbell Shrugs (Light)","3×15",["Dumbbells at your sides.","Shrug straight up, pause, lower slowly."],"No rolling — vertical motion only."),
+        ex("Band Face Pulls","3×15",["Anchor a band at face height.","Pull toward your face, elbows high and wide.","Squeeze shoulder blades together."],"Don't let elbows drop low."),
+      ]},
+    ],
+    normal:[
+      {label:"Shoulders", lore:"The watching eye — the part of you that clocks every exit, every shadow, before you even sit down.", exercises:[
+        ex("Dumbbell Overhead Press","4×10",["Stand or sit, dumbbells at shoulder height, palms forward.","Press straight overhead until arms are extended.","Lower slowly to shoulder height."],"Don't arch your lower back to press the weight up — keep your core braced."),
+        ex("Lateral Raises","4×15",["Stand with dumbbells at your sides, slight elbow bend.","Raise arms out to the sides until parallel with the floor.","Lower slowly, resisting the drop."],"Don't swing or use momentum — light weight with strict form beats heavy weight with a swing."),
+        ex("Front Raises","3×12",["Hold dumbbells in front of thighs.","Raise one or both arms straight in front to shoulder height.","Lower with control."],"Avoid raising above shoulder height — that shifts strain onto the joint."),
+        ex("Bent-Over Rear Delt Flyes","3×15",["Hinge forward at the hips, dumbbells hanging down, slight elbow bend.","Raise arms out to the sides, squeezing shoulder blades together.","Lower with control."],"Don't round your back to compensate — keep a flat spine throughout."),
+        ex("Arnold Press","3×12",["Start with dumbbells in front of shoulders, palms facing you.","Press up while rotating palms to face forward at the top.","Reverse the rotation on the way down."],"Keep the rotation smooth and controlled — jerky twists can strain the rotator cuff."),
+      ]},
+      {label:"Abs & Core", lore:"A core built to take a hit and keep standing — because sooner or later, something swings back.", exercises:[
+        ex("Hanging Leg Raises","4×12",["Hang from the pull-up bar, core braced.","Raise legs (straight or bent) until roughly parallel with the floor.","Lower with control, avoid swinging."],"Don't use momentum/swing to fling the legs up — this removes tension from the abs."),
+        ex("Plank Hold","4×45-60 sec",["Forearms on the ground, body in a straight line from head to heels.","Brace your core and glutes throughout.","Breathe steadily, don't hold your breath."],"Don't let hips sag or pike up — a straight line is the whole point of the exercise."),
+        ex("Cable/Band Woodchoppers","3×15 each side",["Anchor a band high, pull diagonally across your body down to the opposite hip.","Rotate through the torso, not just the arms.","Control the return."],"Don't yank with your arms alone — the power should come from a controlled torso rotation."),
+        ex("Russian Twists","3×20 each side",["Sit with knees bent, torso leaned back slightly, feet off the floor if possible.","Rotate the torso side to side, touching the ground (or a weight) each side.","Keep the movement controlled."],"Don't round your lower back excessively — this is common when fatigued and can strain the spine."),
+        ex("Bicycle Crunches","3×20 each side",["Lie on your back, hands behind head, knees bent.","Bring opposite elbow to opposite knee in a pedaling motion.","Keep the motion slow and controlled, not rushed."],"Don't pull on your neck with your hands — let the abs do the work."),
+      ]},
+      {label:"Traps & Upper Back", lore:"Every ward needs an anchor point — traps are where the whole structure ties in.", exercises:[
+        ex("Barbell Shrugs","4×15",["Hold the barbell in front of your thighs, arms straight.","Shrug shoulders straight up toward your ears.","Pause, then lower slowly."],"Avoid rolling the shoulders — straight vertical movement only."),
+        ex("Face Pulls (Band)","4×15",["Anchor a band at face height, pull toward your face, elbows high and wide.","Squeeze shoulder blades together at the end.","Return with control."],"Don't let elbows drop low — keeping them high targets the rear delts and traps correctly."),
+        ex("Shrug + Hold Combo","3×12 (2 sec hold)",["Perform a standard dumbbell shrug.","Hold the top position for 2 full seconds before lowering.","Focus on squeezing the traps hard."],"Don't use so much weight that you can't control the top hold."),
+      ]},
+    ],
+    hard:[
+      {label:"Shoulders", lore:"The watching eye that never blinks — because whatever's out there is watching back.", exercises:[
+        ex("Standing Barbell Overhead Press","5×6",["Bar at shoulder height, grip just outside shoulders.","Press straight overhead, head driving slightly forward once clear.","Lower with control."],"Don't lean back excessively — keep your core tight and braced."),
+        ex("Heavy Lateral Raises","4×12",["Heavier dumbbells than usual, slight elbow bend.","Raise to shoulder height with control.","Resist the drop on the way down."],"Don't let momentum creep in as the weight increases — strict form or drop the weight."),
+        ex("Arnold Press (Heavy)","4×10",["Dumbbells in front of shoulders, palms facing you.","Press up while rotating palms forward.","Reverse rotation on the way down."],"Keep the rotation smooth even under heavier load — jerky twists strain the rotator cuff."),
+        ex("Single-Arm Overhead Press","3×10 each arm",["One dumbbell at shoulder height.","Press overhead, resisting the urge to lean.","Lower with control."],"Keep your core tight to prevent leaning to one side."),
+        ex("Rear Delt Flye (Heavy, Slow)","4×12",["Hinge forward, dumbbells hanging.","Raise with a slow 3-second tempo, squeezing at the top.","Lower with equal control."],"Don't round your back — flat spine throughout, even fatigued."),
+      ]},
+      {label:"Abs & Core", lore:"A core that holds under a heavier world — because the weight only ever gets worse.", exercises:[
+        ex("Weighted Hanging Leg Raises","4×12",["Hold a light dumbbell between your feet if possible, or add ankle weights.","Raise legs to parallel with control.","Lower slowly."],"Don't swing to compensate for the added weight — reduce the load if form breaks."),
+        ex("Weighted Plank","4×45-60 sec",["Have a plate placed on your upper back, or wear a weighted vest.","Maintain a straight line under the load.","Breathe steadily."],"Stop immediately if your lower back starts to sag under the weight."),
+        ex("Dragon Flags (Progression)","3×6-8",["Lie on a bench, grip behind your head for stability.","Raise your entire body (legs and hips) keeping it rigid, pivoting at the shoulders.","Lower with total control — this is the hardest part."],"This is an advanced movement — regress to leg raises if your lower back rounds at any point."),
+        ex("Weighted Russian Twists","4×20 each side",["Hold a plate or heavy dumbbell at your chest.","Rotate side to side with control.","Keep feet lifted if you can maintain form."],"Don't let the added weight pull your lower back into rounding."),
+        ex("Ab Wheel Rollout (or Bodyweight substitute)","3×10",["Kneeling, roll the wheel (or walk your hands out in a plank) forward as far as controlled.","Brace your core hard throughout.","Pull back to the start using your abs, not your back."],"Stop the rollout before your lower back arches — that's the failure point."),
+      ]},
+      {label:"Traps & Upper Back", lore:"The old Letters carried libraries on their backs — traps built to hold real weight, not just symbolic.", exercises:[
+        ex("Heavy Barbell Shrugs","5×10",["Heavier barbell, straight arms.","Shrug hard straight up, pause at the top.","Lower slowly."],"Don't roll the shoulders, and don't overload past what you can control with strict form."),
+        ex("Weighted Face Pulls","4×15",["Heavier band tension or cable weight.","Pull to face height, elbows high and wide.","Squeeze hard at the end range."],"Don't let elbows drop — that shifts the work away from rear delts and traps."),
+        ex("Behind-the-Back Shrugs","4×12",["Hold the barbell behind your back instead of in front.","Shrug straight up.","Lower with control."],"Keep the bar close to your body — don't let it drift away from your glutes."),
+      ]},
+    ],
+  },
+},
+
+thu: {
+  label:"Thursday", roman:"IV", name:"Rite of the Hollow Ground",
+  flavor:"Legs that never buckle mid-chase, mid-fight, mid-flight. Then the run — because whatever you're hunting, or whatever's hunting you, outlasting it is the real weapon.",
+  metaBase:"Legs + Stretching · Cardio Run",
+  warmup:["Bodyweight squats, 15 reps","Walking lunges, 10 each leg","Leg swings, 10 each direction per leg","Ankle circles, 10 each direction"],
+  sectionsByDiff:{
+    easy:[
+      {label:"Legs — Quads & Glutes", lore:"The ground holds nothing back from legs that won't quit.", exercises:[
+        ex("Bodyweight Squats","3×15",["Feet shoulder-width, chest tall.","Squat down until thighs are close to parallel.","Drive back up through the heels."],"Don't let your knees cave inward."),
+        ex("Assisted Lunges","3×10 each leg",["Hold onto a wall or chair for balance if needed.","Step forward into a lunge, both knees bending.","Push back to start."],"Don't let the front knee slam forward past the toes."),
+        ex("Step-Ups (Low Step)","3×10 each leg",["Use a low step or curb.","Drive through the heel to stand up.","Step down with control."],"Don't push off the bottom leg to assist."),
+      ]},
+      {label:"Legs — Hamstrings & Calves", lore:"The push-off, the sprint start, the calf that holds a crouch behind a door.", exercises:[
+        ex("Glute Bridges","3×15",["Lie on your back, feet planted, knees bent.","Drive hips up, squeezing glutes at the top.","Lower with control."],"Don't overarch your lower back at the top."),
+        ex("Standing Calf Raises (Bodyweight)","3×20",["Stand on flat ground or a low step.","Rise onto your toes.","Lower slowly past neutral."],"Don't rush — slow control matters more than speed here."),
+      ]},
+      {label:"Stretching (Post-Workout)", lore:"Even hunters need to recover — a torn hamstring doesn't care how tough you are.", exercises:[
+        ex("Standing Quad Stretch","2×20 sec each leg",["Stand, grab one ankle behind you, pull heel toward glutes.","Keep knees close together.","Hold, breathing steadily."],"Don't yank the ankle or bounce — ease in gradually."),
+        ex("Seated Hamstring Stretch","2×20 sec each leg",["Sit with one leg extended, other bent in.","Hinge forward from the hips reaching toward your toes.","Keep your back straight."],"Don't round your back to force a deeper reach."),
+      ]},
+    ],
+    normal:[
+      {label:"Legs — Quads & Glutes", lore:"The hollow ground doesn't care how tired your legs are — it only cares if you can still run.", exercises:[
+        ex("Goblet Squats","4×12",["Hold one dumbbell vertically against your chest.","Squat down keeping chest tall and knees tracking over toes.","Drive back up through the heels."],"Don't let your knees cave inward — keep them tracking in line with your toes."),
+        ex("Bulgarian Split Squats","3×10 each leg",["Rear foot elevated on a bench, front foot planted well ahead.","Lower until your front thigh is roughly parallel to the ground.","Push back up through the front heel."],"Don't let the front knee travel far past the toes — adjust your stance length if it does."),
+        ex("Dumbbell Lunges","3×12 each leg",["Step forward into a lunge, both knees bending to ~90°.","Push back to the starting position through the front heel.","Keep torso upright throughout."],"Don't let the front knee slam into the ground or cave inward."),
+        ex("Step-Ups (Bench)","3×12 each leg",["Place one foot fully on a bench/step.","Drive through that heel to stand up on the bench.","Step down with control."],"Don't push off the bottom leg to assist — the working leg should do the lifting."),
+      ]},
+      {label:"Legs — Hamstrings & Calves", lore:"The engine behind every sprint, every dodge, every last-second escape.", exercises:[
+        ex("Romanian Deadlifts (Dumbbell)","4×12",["Hold dumbbells in front of thighs, slight knee bend.","Hinge at the hips, pushing them back, lowering weights along your legs.","Return by driving hips forward, squeezing glutes."],"Don't round your lower back — keep it flat/neutral throughout the hinge."),
+        ex("Single-Leg Glute Bridge","3×12 each leg",["Lie on your back, one foot planted, other leg extended straight.","Drive through the planted heel to lift your hips.","Squeeze at the top, lower with control."],"Don't let your hips rotate/tilt to one side — keep them square."),
+        ex("Standing Calf Raises","4×20",["Stand on the edge of a step, holding dumbbells if desired.","Rise up onto your toes as high as possible.","Lower down past parallel for a full stretch."],"Don't rush the reps — calves respond to slow, controlled tempo far more than speed."),
+        ex("Wall Sit","3×45-60 sec",["Back against a wall, slide down until thighs are parallel to floor.","Hold the position, knees at roughly 90°.","Breathe steadily throughout."],"Don't let knees extend past your toes — adjust your foot position further from the wall if needed."),
+      ]},
+      {label:"Stretching (Post-Workout)", lore:"A ward means nothing if your hamstring gives out chasing something through the treeline.", exercises:[
+        ex("Standing Quad Stretch","2×30 sec each leg",["Stand, grab one ankle behind you, pull heel toward glutes.","Keep knees close together, hips pushed slightly forward.","Hold, breathing steadily."],"Don't yank the ankle or bounce — ease into the stretch gradually."),
+        ex("Seated Hamstring Stretch","2×30 sec each leg",["Sit with one leg extended straight, other bent in.","Hinge forward from the hips reaching toward your toes.","Keep your back as straight as possible."],"Don't round your back to force a deeper reach — the hinge should come from the hips."),
+        ex("Calf Wall Stretch","2×30 sec each leg",["Hands on a wall, one leg back with heel flat on the ground.","Lean forward until you feel a stretch in the back calf.","Hold steadily."],"Don't lift the back heel off the ground — that defeats the stretch."),
+        ex("Hip Flexor Lunge Stretch","2×30 sec each side",["Kneel in a lunge position, back knee on the ground.","Push hips forward gently until you feel a stretch at the front of the hip.","Keep torso upright."],"Don't overarch your lower back to get a deeper stretch."),
+      ]},
+    ],
+    hard:[
+      {label:"Legs — Quads & Glutes", lore:"Legs built to outrun something that doesn't tire — because sometimes that's the whole plan.", exercises:[
+        ex("Barbell Back Squat","5×6",["Bar racked on your upper back, feet shoulder-width.","Squat until thighs are at least parallel.","Drive up through the whole foot."],"Don't let knees cave in or heels lift off the ground."),
+        ex("Bulgarian Split Squats (Weighted)","4×10 each leg",["Rear foot elevated, holding dumbbells at your sides.","Lower until the front thigh is parallel.","Push back up through the front heel."],"Don't let the front knee travel far past the toes."),
+        ex("Walking Lunges (Weighted)","4×12 each leg",["Hold dumbbells at your sides.","Step forward into a lunge, alternating legs as you walk.","Keep torso upright throughout."],"Don't let the trailing knee slam the ground — control the descent."),
+        ex("Jump Squats","3×12",["Perform a bodyweight squat, then explode upward into a jump.","Land softly, absorbing the impact by bending the knees.","Reset and repeat."],"Don't let your knees cave on landing — this is where jump squat injuries happen."),
+      ]},
+      {label:"Legs — Hamstrings & Calves", lore:"The hollow ground swallows the slow. These are the muscles that keep you from being one of them.", exercises:[
+        ex("Heavy Romanian Deadlifts","5×8",["Barbell or heavy dumbbells in front of thighs.","Hinge at the hips, lowering the weight along your legs.","Drive hips forward to return, squeezing glutes."],"Never round your lower back under load — this is a strict hip-hinge, not a squat."),
+        ex("Single-Leg RDL (Dumbbell)","4×10 each leg",["Stand on one leg, dumbbell in the opposite hand.","Hinge forward, extending the free leg back for balance.","Return to standing with control."],"Keep your hips square — don't let them rotate open."),
+        ex("Weighted Calf Raises","4×20",["Hold heavy dumbbells at your sides, on the edge of a step.","Rise onto your toes fully.","Lower past parallel for a deep stretch."],"Don't bounce at the bottom — control the full stretch each rep."),
+        ex("Wall Sit (Weighted)","4×45-60 sec",["Back against a wall, dumbbells resting on your thighs.","Hold with knees at 90°.","Breathe steadily under the load."],"Stop immediately if knees start shaking uncontrollably — that's the cue to remove the added weight."),
+      ]},
+      {label:"Stretching (Post-Workout)", lore:"Recovery is still part of the hunt — the old Letters knew a torn muscle ends a chase faster than any monster.", exercises:[
+        ex("Standing Quad Stretch (Deep)","3×30 sec each leg",["Grab your ankle behind you, pull heel toward glutes.","Push your hips forward slightly for a deeper stretch.","Hold steady, breathing through it."],"Don't yank or bounce — ease deeper only as the muscle relaxes."),
+        ex("Seated Forward Fold (Both Legs)","3×30 sec",["Sit with both legs extended straight in front.","Hinge forward from the hips, reaching toward your toes.","Hold, relaxing further into the stretch each breath."],"Don't round through the upper back to force depth — hinge from the hips."),
+        ex("Pigeon Pose Stretch","2×30 sec each side",["From a plank, bring one knee forward and out to the side.","Extend the back leg straight behind you.","Lower your hips toward the ground, hold."],"Ease in slowly — this is an intense hip stretch, don't force depth."),
+        ex("Standing Calf Stretch (Deep)","3×30 sec each leg",["Hands on a wall, one leg back with heel flat.","Lean forward until a deep stretch is felt.","Hold steadily."],"Keep the back heel down throughout — lifting it defeats the purpose."),
+      ]},
+    ],
+  },
+  cardio:{
+    title:"Rally Point Run — Cardio",
+    lines:["Run at a sustainable pace you can hold for the full window.","Goal: cover 3-4 km within 30 minutes.","Adjust pace week to week as your endurance builds — this is a drill you grow into."],
+    target:"TARGET: 3-4 KM / 30:00"
+  },
+},
+
+fri: {
+  label:"Friday", roman:"V", name:"Rite of the Iron Arm, Reforged",
+  flavor:"The second working of the week's oldest spell — arms and traps sharpened again, with the abs bound in to seal the whole ritual shut.",
+  metaBase:"Arms, Traps & Abs",
+  warmup:["2 min arm circles, forward and back","Wrist rotations, 20 each direction","Cat-cow stretch, 8 reps","Light curls, 1 set of 15 to prime the joints"],
+  sectionsByDiff:{
+    easy:[
+      {label:"Forearms & Grip", lore:"The second casting of the week's first arm spell — lighter, but the grip still has to hold.", exercises:[
+        ex("Wrist Curls (Light)","3×12",["Forearm on your thigh, wrist hanging off the edge, palm up.","Curl the dumbbell up.","Lower for a full stretch."],"Keep the weight light — this is a small-joint movement."),
+        ex("Farmer's Carry (Light, Short Distance)","3×20m",["Hold a light-moderate dumbbell in each hand.","Walk the distance keeping shoulders back.","Set down with control."],"Don't let your shoulders round forward while walking."),
+      ]},
+      {label:"Biceps", lore:"A lighter working, same intent — the arm that pulls you out of trouble.", exercises:[
+        ex("Standing Dumbbell Curl (Light)","3×12",["Elbows pinned to sides, curl without swinging.","Squeeze at the top."],"No swinging the torso to heave the weight up."),
+        ex("Hammer Curl (Light)","3×12",["Neutral grip, curl straight up.","Lower with control."],"Keep elbows from drifting forward."),
+        ex("Zottman Curl (Light)","3×10",["Curl up with palms forward.","Rotate palms down at the top.","Lower slowly in the reverse position."],"Don't rush the rotation — control is the whole point."),
+      ]},
+      {label:"Triceps", lore:"The finishing motion, softened but not skipped.", exercises:[
+        ex("Overhead Extension (Light)","3×10",["One dumbbell overhead with both hands.","Lower behind the head bending only the elbows.","Press back up."],"Keep elbows pointed forward, not flared."),
+        ex("Bench Dips (Knees Bent)","3×12",["Hands on a bench, knees bent, feet flat.","Lower hips toward the floor.","Press back up."],"Don't lower past a 90° bend if you feel shoulder strain."),
+      ]},
+      {label:"Traps", lore:"One more pass at the width that keeps the doorway warded.", exercises:[
+        ex("Dumbbell Shrugs (Light)","3×15",["Dumbbells at your sides.","Shrug straight up, lower slowly."],"No rolling motion."),
+        ex("Assisted Pull-ups","3×max",["Use a band for assistance or slow negatives.","Focus on the pull and the controlled descent."],"Don't let go abruptly — control the whole rep."),
+      ]},
+      {label:"Abs (Final Pre-Flight)", lore:"The final seal — a core that holds the whole working together.", exercises:[
+        ex("Plank Hold","3×30 sec",["Forearms down, straight line head to heels.","Brace core and glutes."],"Don't let hips sag or pike."),
+        ex("Bicycle Crunches","3×15 each side",["Hands behind head, opposite elbow to opposite knee.","Slow, controlled pedaling."],"Don't pull on your neck — let your abs drive it."),
+        ex("Knee Raises (Hanging)","3×10",["Hang from the bar.","Raise knees toward chest, no swinging.","Lower with control."],"Don't use momentum to fling the knees up."),
+      ]},
+    ],
+    normal:[
+      {label:"Forearms & Grip", lore:"The second casting of the week's first arm spell — same grip, same stakes.", exercises:[
+        ex("Wrist Curls (Dumbbell)","3×15",["Forearm on your thigh, wrist hanging off the edge, palm up.","Curl the dumbbell up using only the wrist.","Lower for a full stretch."],"Keep the weight light — this is a small-joint movement, not an ego lift."),
+        ex("Reverse Wrist Curls","3×15",["Same setup, palm facing down.","Curl the back of the hand upward.","Control the full range."],"Don't rush the tempo — slow control builds forearm size better than speed."),
+        ex("Farmer's Carry (Walking)","4×30m",["Hold a heavy dumbbell in each hand at your sides.","Walk a set distance keeping shoulders back and core tight.","Set the weights down with control, don't drop them."],"Don't let your shoulders round forward or shrug up around your ears while walking."),
+      ]},
+      {label:"Biceps", lore:"The arm that pulls you through a trapdoor, hauls a rope, throws the punch that ends it.", exercises:[
+        ex("Standing Dumbbell Curl","4×12",["Elbows pinned to sides, curl the dumbbells up without swinging.","Squeeze at the top.","Lower slowly."],"No swinging the torso to heave the weight up."),
+        ex("Hammer Curl","3×12",["Neutral grip (palms facing in).","Curl straight up, elbows fixed.","Lower with control."],"Keep elbows from drifting forward during the lift."),
+        ex("Preacher-Style Curl (Bench)","3×12",["Rest the back of your upper arm on an inclined bench surface.","Curl the dumbbell up, keeping the upper arm pinned.","Lower fully for a deep stretch."],"Don't let the elbow lift off the bench — that shifts tension away from the bicep."),
+        ex("Zottman Curl","3×10",["Curl the dumbbells up with palms facing forward.","At the top, rotate palms to face down.","Lower slowly in the reverse-curl position."],"Don't rush the rotation — the slow reverse portion is where the forearm benefit comes from."),
+      ]},
+      {label:"Triceps", lore:"The push that closes the ritual — chest to lockout, every time.", exercises:[
+        ex("Overhead Dumbbell Extension","3×12",["One dumbbell held overhead with both hands.","Lower behind the head bending only the elbows.","Press back to full extension."],"Keep elbows pointed forward, not flared outward."),
+        ex("Close-Grip Bar Press","4×10",["Grip the bar just inside shoulder width.","Lower to your lower chest, elbows tracking close to the body.","Press up, focusing on the triceps."],"Don't grip too narrow — this stresses the wrists."),
+        ex("Bench Dips","3×15",["Hands on a bench behind you, legs extended out front.","Lower your hips toward the floor bending the elbows.","Press back up to full extension."],"Don't lower too deep if you feel shoulder pinching — stop at a 90° elbow bend."),
+      ]},
+      {label:"Traps", lore:"The width, reforged — the second sigil laid over the first.", exercises:[
+        ex("Dumbbell Shrugs","4×15",["Hold heavy dumbbells at your sides.","Shrug straight up toward the ears.","Lower slowly."],"No rolling motion — straight up and down only."),
+        ex("Wide-Grip Pull-ups","4×max reps",["Wide grip, pull chest toward the bar.","Drive elbows down and out.","Lower to a full dead hang."],"No kipping or swinging — control is what builds width."),
+      ]},
+      {label:"Abs (Final Pre-Flight)", lore:"The seal that finishes the working — a core that holds under any strain.", exercises:[
+        ex("Hanging Leg Raises","3×12",["Hang from the bar, core braced.","Raise legs to parallel with the floor.","Lower with control."],"No swinging — isolate the abs, not momentum."),
+        ex("Plank Hold","3×45-60 sec",["Forearms down, straight line head to heel.","Brace core and glutes.","Breathe steadily throughout."],"Don't let hips sag or pike."),
+        ex("Russian Twists","3×20 each side",["Seated, torso leaned back, feet lifted if possible.","Rotate side to side with control.","Keep the movement steady, not rushed."],"Don't round the lower back excessively when fatigued."),
+        ex("Bicycle Crunches","3×20 each side",["Lying down, hands behind head, opposite elbow to opposite knee.","Slow, controlled pedaling motion.","Exhale on each crunch."],"Don't pull on your neck — let your abs drive the motion."),
+      ]},
+    ],
+    hard:[
+      {label:"Forearms & Grip", lore:"Reforged and hardened — the grip that never lets go, no matter what's pulling back.", exercises:[
+        ex("Weighted Wrist Curls (Barbell)","4×15",["Sit, forearms on thighs, barbell hanging at fingertips.","Curl using only the wrists.","Lower for a deep stretch."],"Don't bounce the bar — control the full stretch."),
+        ex("Heavy Farmer's Carry","4×40m",["Heaviest dumbbells you can hold with good posture.","Walk the distance, shoulders back, core braced.","Set down with control."],"Don't let the weight pull your shoulders forward."),
+        ex("Plate Pinch Hold","4×30 sec",["Pinch a weight plate between fingers and thumb.","Hold without letting it slip.","Switch hands."],"Hold over a mat or soft surface in case of a drop."),
+      ]},
+      {label:"Biceps", lore:"The second forging — heavier, slower, the kind of strength that doesn't fade by Friday.", exercises:[
+        ex("Heavy Standing Curl","4×10",["Elbows pinned to sides, heaviest controlled weight.","Curl up without swinging.","Lower slowly (3 sec)."],"If you need to swing to move the weight, it's too heavy — drop the load."),
+        ex("21s (Partials + Full)","3×21",["7 reps bottom half.","7 reps top half.","7 full range reps."],"Don't rush the partials — the slow burn is the point."),
+        ex("Drag Curl","3×10",["Curl while dragging the dumbbells along your torso, elbows drifting back.","Squeeze at the top.","Lower along the same path."],"Don't let this turn into a normal curl — elbows should travel back."),
+      ]},
+      {label:"Triceps", lore:"The killing blow, delivered twice a week now — the reforged arm doesn't tire as fast.", exercises:[
+        ex("Weighted Dips","4×10",["Add weight via belt if bodyweight dips are too easy.","Lower until upper arms are near-parallel to the floor.","Press to full extension."],"Don't go too deep if you feel shoulder strain."),
+        ex("Close-Grip Heavy Bench Press","4×8",["Grip just inside shoulder width on the barbell.","Lower to lower chest, elbows tracking close.","Press up hard."],"Use a spotter or safety pins — heavy compound lift."),
+        ex("Heavy Skull Crushers","4×10",["Dumbbells or bar extended above chest, lying down.","Lower to forehead/behind head with control.","Extend up without slamming the lockout."],"Never let the weight drop uncontrolled toward your face."),
+      ]},
+      {label:"Traps", lore:"The reforged sigil — width laid down twice a week until the shape is permanent.", exercises:[
+        ex("Heavy Barbell Shrugs","4×12",["Heavier barbell, straight arms.","Shrug hard straight up, pause.","Lower slowly."],"Don't roll the shoulders, don't overload past strict-form control."),
+        ex("Weighted Pull-ups","4×6-8",["Add weight via belt or held between feet.","Pull chin over the bar.","Full dead hang each rep."],"Don't add weight before strict bodyweight form is solid."),
+      ]},
+      {label:"Abs (Final Pre-Flight)", lore:"The final ward of the week's second casting — a core built to take the hit and hold the line.", exercises:[
+        ex("Weighted Hanging Leg Raises","4×12",["Hold a light dumbbell between your feet or use ankle weights.","Raise legs to parallel with control.","Lower slowly."],"Reduce the load if swinging creeps in."),
+        ex("Weighted Plank","4×45-60 sec",["Plate on your upper back or a weighted vest.","Maintain a straight line under load.","Breathe steadily."],"Stop if your lower back starts to sag under the weight."),
+        ex("Weighted Russian Twists","4×20 each side",["Hold a plate or heavy dumbbell at your chest.","Rotate side to side with control.","Keep feet lifted if you can maintain form."],"Don't let the added weight pull your lower back into rounding."),
+        ex("Dragon Flag Progression","3×6-8",["Lie on a bench, grip behind your head.","Raise your body rigidly, pivoting at the shoulders.","Lower with total control."],"Regress to leg raises if your lower back rounds at any point."),
+      ]},
+    ],
+  },
+},
+
+sat: {
+  label:"Saturday", roman:"VI", name:"Rite of the Unbreakable Vow",
+  flavor:"The hardest working of the week — where you prove the vow means something. Strength, endurance, and the benchmarks that tell you the truth about where you stand.",
+  metaBase:"Strength + Benchmark Tests",
+  warmup:["5 min light cardio (jog in place, jump rope, or bike)","Bodyweight squats, 15 reps","Arm circles and band pull-aparts, 2×15","Light empty-bar or light-dumbbell reps of the day's first lift"],
+  sectionsByDiff:{
+    easy:[
+      {label:"Heavy Compound Lifts (Lighter Load)", lore:"The vow doesn't demand you lift the heaviest weight — it demands you show up and mean it.", exercises:[
+        ex("Dumbbell Romanian Deadlift","4×10",["Hold dumbbells in front of thighs, slight knee bend.","Hinge at the hips, lowering weights along your legs.","Return by driving hips forward."],"Never round your lower back under load — this is the biggest injury risk of the day."),
+        ex("Goblet Squat","4×10",["Hold one dumbbell vertically against your chest.","Squat down keeping chest tall.","Drive back up through the heels."],"Don't let knees cave inward."),
+        ex("Dumbbell Bench Press","4×10",["Lie flat, press dumbbells up from chest height.","Lower with control."],"Don't flare elbows to a full 90°."),
+        ex("Assisted Pull-ups","3×max",["Use a band for assistance or slow negatives.","Focus on the pull and controlled descent."],"Don't add weight before bodyweight form is solid."),
+      ]},
+      {label:"Functional Strength", lore:"Strength that works in the real world — carrying, lifting, moving under load.", exercises:[
+        ex("Farmer's Carries (Moderate)","3×30m",["Moderate dumbbells, walk the distance with good posture.","Core braced, shoulders back."],"Reset your posture if it starts to slip."),
+        ex("Dumbbell Squat to Press","3×10",["Hold dumbbells at shoulder height, squat down.","Drive up and press overhead in one motion.","Lower back to shoulders."],"Don't disconnect the squat and press — keep it one flowing motion."),
+        ex("Plank Row (Renegade Row, Light)","3×10 each arm",["Plank position, hands on light dumbbells.","Row one dumbbell up while stabilizing with the other arm.","Keep hips square."],"Don't let your hips rotate wildly."),
+      ]},
+      {label:"Grinders", lore:"The slow, honest work that builds the vow one rep at a time.", exercises:[
+        ex("Dumbbell Rows","3×12",["Hinge at hips, flat back.","Pull dumbbells to your ribcage.","Lower with control."],"Don't round your back to move more weight."),
+        ex("Dumbbell Overhead Press","3×10",["Dumbbells at shoulder height.","Press straight overhead.","Lower with control."],"Don't lean back excessively — keep core braced."),
+      ]},
+    ],
+    normal:[
+      {label:"Heavy Compound Lifts", lore:"The vow is proven under the bar — this is where the week either paid off or didn't.", exercises:[
+        ex("Deadlift (Barbell)","5×5",["Feet hip-width, bar over mid-foot, grip just outside your legs.","Hinge down keeping back flat, chest up, drive through the heels to stand.","Lock out by squeezing glutes, not by hyperextending the back."],"NEVER round your lower back under load — this is the single biggest injury risk of the whole week. Drop the weight if form breaks down."),
+        ex("Barbell Back Squat","5×5",["Bar racked on your upper back/traps, feet shoulder-width.","Squat down until thighs are at least parallel to the floor.","Drive up through the whole foot."],"Don't let your knees cave in or your heels lift off the ground."),
+        ex("Barbell Bench Press","5×5",["Grip just wider than shoulder-width, lower bar to mid-chest.","Press up to full lockout.","Use a spotter or safety pins for heavy sets."],"Never bounce the bar off your chest."),
+        ex("Weighted Pull-ups","4×6-8",["Attach a weight (belt or held between feet) if bodyweight is too easy.","Pull chin over the bar with control.","Lower to a full dead hang each rep."],"Don't add weight before your bodyweight pull-up form is solid."),
+      ]},
+      {label:"Functional Strength", lore:"The kind of strength that carries a body out of a collapsed building, not just a barbell off a rack.", exercises:[
+        ex("Farmer's Carries (Heavy)","4×40m",["Heaviest dumbbells you can hold with good posture.","Walk the distance with shoulders back, core braced.","Set down with control between sets."],"Don't let the weight pull your shoulders forward — reset your posture if it starts to slip."),
+        ex("Dumbbell Thrusters","4×10",["Hold dumbbells at shoulder height, squat down.","Drive up out of the squat and press the dumbbells overhead in one motion.","Lower back to the shoulders and repeat."],"Don't let the squat and press become two disconnected movements — it should flow as one."),
+        ex("Renegade Rows","3×10 each arm",["Plank position, hands on dumbbells.","Row one dumbbell up to your ribcage while stabilizing with the other arm.","Keep hips as square/still as possible."],"Don't let your hips rotate wildly — a slight sway is normal, but control it."),
+        ex("Weighted Step-Ups","3×10 each leg",["Hold dumbbells at your sides, one foot on a bench.","Drive through the front heel to stand up on the bench.","Step down with control."],"Don't push off the back leg — the front leg should do the work."),
+        ex("Kettlebell/Dumbbell Swings","4×15",["Hinge at the hips, weight between your legs.","Drive hips forward explosively to swing the weight to chest height.","Let it swing back down under control."],"This is a hip-hinge, not a squat — don't bend the knees excessively or use your arms to lift the weight."),
+      ]},
+      {label:"Grinders", lore:"The final proof — the reps nobody's watching, the ones you do anyway.", exercises:[
+        ex("Barbell Rows (Heavy)","4×8",["Hinge to ~45°, flat back.","Pull the bar to your lower ribcage.","Lower with control."],"Don't round your back to move heavier weight — drop the load instead."),
+        ex("Overhead Press (Barbell)","4×6",["Bar at shoulder height, grip just outside shoulders.","Press straight overhead, driving your head slightly forward once the bar clears your face.","Lower with control."],"Don't lean back excessively to press the weight — keep your core braced."),
+        ex("Weighted Dips","4×8",["Using parallel bars or a sturdy setup, add weight via a belt if needed.","Lower until upper arms are roughly parallel to the floor.","Press back to full extension."],"Don't go too deep if you feel shoulder strain — reduce range of motion."),
+      ]},
+    ],
+    hard:[
+      {label:"Heavy Compound Lifts (Max Effort)", lore:"The Men of Letters didn't survive on talent — they survived because they trained past the point most people quit.", exercises:[
+        ex("Deadlift (Heavy Singles/Triples)","5×3",["Feet hip-width, bar over mid-foot.","Hinge down keeping back flat, drive through heels.","Lock out by squeezing glutes."],"NEVER round your lower back — at this intensity, form breakdown means stopping the set immediately."),
+        ex("Barbell Back Squat (Heavy)","5×5",["Bar racked on your upper back, feet shoulder-width.","Squat below parallel with control.","Drive up hard through the whole foot."],"Use safety bars/a spotter at this intensity — don't skip safety for a bigger number."),
+        ex("Barbell Bench Press (Heavy)","5×5",["Grip just wider than shoulder-width.","Lower to mid-chest with control.","Drive to full lockout."],"Never attempt a heavy single without a spotter or safety pins."),
+        ex("Weighted Pull-ups (Heavy)","5×5",["Add significant weight via belt.","Pull chin over the bar with full control.","Full dead hang each rep."],"Don't sacrifice range of motion for more weight — partial reps don't count."),
+      ]},
+      {label:"Functional Strength (Max Effort)", lore:"Strength built for the worst night of your life — dragging, carrying, holding on when everything says let go.", exercises:[
+        ex("Heavy Farmer's Carries","5×40m",["Heaviest dumbbells you can carry with strict posture.","Walk the full distance without setting down early.","Reset grip fully between sets."],"Don't let form degrade for distance — set down and reset rather than round your back."),
+        ex("Heavy Dumbbell Thrusters","5×10",["Heaviest dumbbells you can control through the full squat-to-press.","Drive up out of the squat into the press as one motion.","Lower with control."],"Don't let the movement become two disconnected parts — that usually means the weight is too heavy."),
+        ex("Weighted Renegade Rows","4×10 each arm",["Plank position, heavier dumbbells.","Row one side while stabilizing hard with the other arm and core.","Keep hips square."],"Reduce the weight immediately if your hips start rotating uncontrollably."),
+        ex("Heavy Kettlebell/Dumbbell Swings","5×15",["Heavier weight, strict hip-hinge.","Drive hips forward explosively.","Control the backswing."],"This remains a hip-hinge even at heavier weight — don't let it turn into a squat."),
+      ]},
+      {label:"Grinders (Max Effort)", lore:"The vow's final test — the reps that separate a hunter from someone who just owns a gym membership.", exercises:[
+        ex("Heavy Barbell Rows","5×6",["Hinge to ~45°, flat back, heavy load.","Pull the bar to your lower ribcage.","Lower with full control."],"Don't round your back to move more weight — no exceptions at this intensity."),
+        ex("Heavy Overhead Press","5×5",["Bar at shoulder height, heaviest controlled weight.","Press straight overhead.","Lower with control."],"Don't lean back to press the weight — that's a sign to reduce load."),
+        ex("Weighted Dips (Heavy)","5×6",["Add significant weight via belt.","Lower to near-parallel upper arms.","Press to full extension."],"Reduce depth immediately if you feel any shoulder pinching."),
+      ]},
+    ],
+  },
+  benchmarks:{
+    title:"Selection Trials — Test Yourself",
+    items:[
+      {num:"30", lbl:"Push-ups / 2 min"},
+      {num:"30", lbl:"Sit-ups / 2 min"},
+      {num:"5", lbl:"Pull-ups / 2 min"},
+      {num:"2700m", lbl:"Run / 12 min"},
+    ]
+  },
+},
+
+sun: {
+  label:"Sunday", roman:"VII", name:"The Salt Circle",
+  flavor:"Even hunters rest inside the circle. No blade, no bar, no bell — just the couch, the screen, and whatever's hunting the Winchesters this week.",
+  metaBase:"Full Rest · Recovery Day",
+  rest:true,
+  restItems:[
+    { name:"Watch an episode (or five) of Supernatural", lore:"Even the Winchesters got a night off between hunts — usually right before things went sideways again. Consider this the calm before whatever the new week has planned for you.", tip:"Recovery tip: watching something you love lowers cortisol just as much as most people expect a 'productive' rest day to. This counts." },
+    { name:"Game session — no guilt", lore:"Every hunter needs a bunker to retreat to. Consider your controller the modern equivalent of the Men of Letters' library — a little escapism between rites.", tip:"Recovery tip: mentally checking out for a while is part of what lets your nervous system actually rest, not just your muscles." },
+    { name:"Stretch lightly if anything's sore", lore:"Not every ritual needs to hurt to work. A gentle stretch is still a working — just a quieter one.", tip:"Recovery tip: light stretching increases blood flow to sore tissue without adding the stress of another workout." },
+    { name:"Hydrate, eat properly", lore:"Salt keeps out what shouldn't get in. Food and water keep you standing long enough to draw the next circle.", tip:"Recovery tip: muscle repair is largely a nutrition problem — protein and hydration matter more on rest days than most people assume." },
+    { name:"Sleep 7-9 hours", lore:"The oldest ward of all. Nothing rebuilds a hunter faster than a full night behind a locked door and a devil's trap under the rug.", tip:"Recovery tip: most muscle repair and growth hormone release happens during deep sleep — this is arguably the most important item on the list." },
+  ]
+},
+
+};
+
+/* ============================================================
+   MILITARY THEME — one branch per day (text + names only)
+   ============================================================ */
+// Spec Ops tier = Elite sections + one selection-style section per day
+const SPECIAL_EXTRA = {
+ mon:[
+  ex('Towel Pull-ups','4×max',['Drape two towels over the bar and grip one in each hand.', 'Pull chest toward the bar, no kipping.'],"Don't swing. If grip gives out first, that's the point of the drill."),
+  ex('Sandbag Bear-Hug Carry','4×50m',['Hug a sandbag or loaded pack to your chest.', 'Walk tall, short quick steps.'],"Don't let your back round. Set it down with control."),
+ ],
+ tue:[
+  ex('Burpee Pull-ups','4×8',['Burpee, then jump up into a pull-up.', 'Chin over the bar, then land soft.'],"Don't rush the pull-up. Smooth reps beat sloppy ones."),
+  ex('Loaded-Pack Push-ups','4×max',['Wear a loaded backpack, hands under shoulders.', 'Chest to the floor, press up in one straight line.'],"Don't let hips sag under the extra weight."),
+ ],
+ wed:[
+  ex('Loaded Pack Overhead Carry','4×40m',['Hold a loaded pack or sandbag overhead with straight arms.', 'Walk steadily, ribs down, core braced.'],"Don't arch your lower back. Drop the weight if form breaks."),
+  ex('Flutter Kicks','4×60 sec',['Lie on your back, hands under hips, legs just off the floor.', 'Small fast alternating kicks, lower back pressed down.'],"Don't let your lower back lift off the floor."),
+ ],
+ thu:[
+  ex('Loaded Ruck March','1×45 min',['Wear a 15 kg pack and march at a fast walk.', 'Short steps, shoulders back, steady pace.'],"Don't overload early. Add weight slowly over weeks."),
+  ex('Sprint-Rest Intervals','8×100m',['Sprint 100m hard.', 'Walk back to the start as your rest.'],"Don't skip the warm-up. Hamstrings tear on cold sprints."),
+ ],
+ fri:[
+  ex('Toes-to-Bar','4×10',['Hang from the bar and lift your toes up to touch it.', 'Lower slowly, no swinging.'],"Do knee raises first if you can't control the swing."),
+  ex('Heavy Backpack Shrug Carry','4×40m',['Carry a heavy pack in each hand at your sides.', 'Keep shoulders shrugged up and walk tall.'],"Don't let your shoulders round forward."),
+ ],
+ sat:[
+  ex('Sandbag Casualty Drag','4×30m',['Drag a loaded sandbag or pack by its handle, low and driving.', 'Stay low and keep your hips under you.'],"Don't pull with a rounded back. Drive with your legs."),
+  ex('Burpee Ladder for Time','100 reps',['Do 100 burpees in sets of 10, resting as little as you can.', 'Log your finish time.'],"Don't sacrifice form for speed. Chest to the floor every rep."),
+ ],
+};
+DAY_ORDER.forEach(k=>{ if(DATA[k].rest) return;
+  const secs = JSON.parse(JSON.stringify(DATA[k].sectionsByDiff.hard));
+  secs.push({label:"Selection Standard", lore:"Selection tests what the gym can't: carrying, dragging and grinding while tired. This is where the quiet professionals are made.", exercises:SPECIAL_EXTRA[k]});
+  DATA[k].sectionsByDiff.special = secs;
+});
+
+const MIL = {
+ mon:{key:"army", unit:"Army", glyph:"★", name:"Operation Iron Arm",
+  flavor:"Infantry runs on its arms: humping rucks, hauling gear, pulling a buddy over the wall. Forearms, biceps, triceps and traps built to carry the load all the way to the objective. Hooah.",
+  lore:["Grip first. A rifle, a ruck strap, a buddy's vest: if your hands quit, the mission does.","Biceps are the pull that gets you over the wall and up the rope.","Triceps are the push that locks out under load, every single time.","Wide, strong traps carry the ruck mile after mile."]},
+ tue:{key:"marines", unit:"Marines", glyph:"✪", name:"Beachhead Assault",
+  flavor:"First to fight. A chest that takes the beach and a back that hauls the gear off it, the V-taper of a Devil Dog. Oorah.",
+  lore:["Hit the beach and push through the line. The upper chest does the heavy pushing.","The foundation of the assault. Nothing advances without it.","A wide back is the Marine's shield and the hauling engine behind every landing."]},
+ wed:{key:"navy", unit:"Navy", glyph:"⚓", name:"Standing the Watch",
+  flavor:"Eyes on the horizon. Shoulders that stand the long watch, a core that holds steady in heavy seas, and traps that keep the whole ship upright. Anchors aweigh.",
+  lore:["Stand your watch: steady, squared away, never the first to look away.","A core that keeps you upright when the deck pitches.","Below-deck strength. The structure that holds everything topside."]},
+ thu:{key:"paras", unit:"Paratroopers", glyph:"🪂", name:"Drop Zone",
+  flavor:"Jump, land, run. Legs that absorb the landing and sprint off the drop zone before anyone knows you've arrived, then the long run to the rally point. Airborne!",
+  lore:["Quads and glutes take the landing. Every jump ends on your legs.","Hamstrings and calves power the sprint off the DZ and the push to the rally point.","Stretch it out. A pulled hamstring grounds a paratrooper faster than any flak."]},
+ fri:{key:"airforce", unit:"Air Force", glyph:"✈", name:"Sortie Two",
+  flavor:"Second sortie of the week. Arms and traps sharpened again, with the abs added as the final pre-flight check. Wheels up, pull hard, land clean. Aim high.",
+  lore:["Pre-flight check: grip. Nothing flies if you can't hold the stick.","Biceps pull you through the maneuver.","Triceps give the controlled push that keeps the landing smooth.","Traps are the frame that carries the g-load.","The core is the airframe. Hold it together under pressure."]},
+ sat:{key:"specops", unit:"Special Forces", glyph:"⌖", name:"Selection Day",
+  flavor:"The hardest day of the week, where you prove you belong. Strength, endurance, and the benchmark tests that tell you the truth about where you stand. Quiet professionals don't skip this one.",
+  lore:["Heavy compounds. The bar tells the truth, no excuses.","Functional strength: carrying, dragging, hauling. Strength that works in the field.","Grinders. The slow, honest reps nobody sees. This is where selection is decided."]},
+ sun:{key:"medical", unit:"Medical Corps", glyph:"✚", name:"Stand Down",
+  flavor:"Mission complete for the week. No bar, no rucksack, no run, just the couch, the screen, and a proper recovery. Even the best units rotate off the line.",
+  lore:["Even the best units get a night off the line. Stand down, put your feet up, and let the next op wait until Monday.","Every operator needs a barracks to retreat to. Your controller is the day room: a little downtime between operations.","Not every drill needs to hurt. A gentle stretch is still maintenance, quiet but it keeps the gear working.","An army marches on its stomach. Food and water keep you combat-ready for the next drill.","Lights out. Nothing restores a soldier faster than a full night's sleep in a solid rack."]},
+};
+DAY_ORDER.forEach(k=>{ DATA[k].name = MIL[k].name; DATA[k].flavor = MIL[k].flavor; });
+const addEx = (d,i,list)=> DATA[d].sectionsByDiff.normal[i].exercises.push(...list);
+addEx("mon",0,[
+ ex("Reverse Barbell Curls","3×12",["Hold the bar overhand, shoulder-width, arms hanging.","Curl up with your elbows pinned to your sides.","Lower slowly over 3 seconds."],"Don't swing your back to get the bar up. Go lighter and stay strict."),
+ ex("Barbell Finger Curls","3×10",["Hold the bar underhand and let it roll down to your fingertips.","Curl your fingers closed, then curl the wrists up.","Lower slowly and repeat."],"Don't let the bar drop. Control the roll with your fingers all the way."),
+ ex("Towel Dead Hangs","3×20-30 sec",["Drape a towel over the pull-up bar and grip both ends.","Hang with arms straight and shoulders pulled down.","Hold until your grip starts to fail, then step down."],"Don't jump off. Step down and stop the set before your grip fully gives out.")]);
+addEx("fri",0,[
+ ex("Hammer Curls","3×12",["Stand with dumbbells at your sides, palms facing in.","Curl up with thumbs pointing to the ceiling.","Lower slowly with no swing."],"Don't rock your torso. If you need momentum the weight is too heavy."),
+ ex("Plate Pinch Hold","3×25 sec",["Pinch a plate smooth-side-out between fingers and thumb.","Hold it at your side with your arm relaxed.","Switch hands each set."],"Don't squeeze with the whole fist. Keep it a true pinch, thumb against fingers.")]);
+addEx("wed",0,[
+ ex("Pike Push-ups","3×10",["Start in a downward-dog shape, hips high, hands shoulder-width.","Lower the top of your head toward the floor between your hands.","Press back up to straight arms."],"Don't flare your elbows wide or let the hips sag. Keep them stacked high."),
+ ex("Incline Bench Y-Raises","3×12",["Lie chest-down on an incline bench with light dumbbells hanging.","Raise both arms forward and up in a Y shape, thumbs up.","Lower slowly and keep your neck relaxed."],"Don't shrug toward your ears or go heavy. Light dumbbells, strict raises."),
+ ex("Lateral-to-Front Raise Combo","3×10",["Stand with light dumbbells at your sides.","Raise both arms out to the sides to shoulder height, then lower.","Raise them forward to shoulder height, then lower. That's one rep."],"Don't swing or lean back. Stop at shoulder height.")]);
+addEx("tue",0,[
+ ex("Feet-Elevated Push-ups","3×12",["Put your feet on a bench, hands slightly wider than shoulders.","Lower your chest to just above the floor, body in one straight line.","Press up hard without sagging your hips."],"Don't let the lower back sag or the head drop first. Chest leads, body stays rigid."),
+ ex("Incline Dumbbell Squeeze Press","3×12",["Lie on an incline bench with the dumbbells pressed together over your chest.","Squeeze them against each other the whole time and press up.","Lower slowly until your elbows are just below the bench."],"Don't let the dumbbells drift apart. The constant squeeze is the point.")]);
+addEx("tue",1,[
+ ex("Flat Dumbbell Flyes","3×12",["Lie flat with dumbbells over your chest, elbows slightly bent.","Open your arms wide in an arc until you feel a chest stretch.","Bring them back together like a hug."],"Don't go too deep or too heavy. Overstretching a flye strains the shoulder.")]);
+
+/* ============================================================
+   STATE
+   ============================================================ */
+
+let state = loadJSON(STORAGE_KEY, {});
+let diffState = loadJSON(DIFF_KEY, {}); // per-day difficulty
+const CHAL_KEY = "hunters_grimoire_challenge_v1";
+const TIER_CHALLENGE = {
+  easy:   {pushups:10, situps:10, pullups:5,  burpees:15, run:2.2},
+  normal: {pushups:20, situps:20, pullups:10, burpees:30, run:2.5},
+  hard:   {pushups:50, situps:50, pullups:20, burpees:75, hang:3, run:3.0},
+  special:{pushups:50, situps:50, pullups:20, burpees:80, run:3.0}
+};
+let chalState = loadJSON(CHAL_KEY, {});
+function saveChal(){ try{ localStorage.setItem(CHAL_KEY, JSON.stringify(chalState)); }catch(e){} }
+let logState = loadJSON(LOG_KEY, {}); // per-exercise weight/reps log
+const HIST_KEY = "field_manual_history_v1";
+let histState = loadJSON(HIST_KEY, {}); // per-exercise history: {logKey: {YYYY-MM-DD: {w, r}}}
+function saveHist(){ try{ localStorage.setItem(HIST_KEY, JSON.stringify(histState)); }catch(e){} }
+function todayStr(){ const d=new Date(), p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function fmtDate(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+function recordHist(dayKey, diff, name){
+  const k = logKey(dayKey, diff, name);
+  const l = logState[k] || {};
+  const w = parseFloat(String(l.weight).replace(',','.'));
+  const r = parseInt(l.reps, 10);
+  const date = todayStr();
+  if(isNaN(w) && isNaN(r)){
+    if(histState[k]){ delete histState[k][date]; if(!Object.keys(histState[k]).length) delete histState[k]; }
+  } else {
+    (histState[k] = histState[k] || {})[date] = {w: isNaN(w) ? null : w, r: isNaN(r) ? null : r};
+  }
+  saveHist();
+}
+function drawGraph(box, key, metric){
+  const h = histState[key] || {};
+  const pts = Object.keys(h).sort().map(d=>({d, v:h[d][metric]})).filter(p=> typeof p.v === 'number' && !isNaN(p.v)).slice(-12);
+  if(!pts.length){
+    box.innerHTML = '<div class="graph-empty">No history yet. Log this exercise on a few different days and your trend shows up here.</div>';
+    return;
+  }
+  const W=300, H=130, L=34, R=12, T=12, B=24;
+  const rawMin = Math.min(...pts.map(p=>p.v)), rawMax = Math.max(...pts.map(p=>p.v));
+  let min = rawMin, max = rawMax;
+  if(min === max){ min -= 1; max += 1; }
+  const pad = (max-min)*0.12; min -= pad; max += pad;
+  if(rawMin >= 0 && min < 0) min = 0;
+  const n = pts.length;
+  const xAt = i => n === 1 ? (L + W - R)/2 : L + i*(W-L-R)/(n-1);
+  const yAt = v => T + (max - v)/(max - min)*(H - T - B);
+  const fmt = v => String(Number(v.toFixed(1)));
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Progress graph">`;
+  [min, (min+max)/2, max].forEach(v=>{
+    const y = yAt(v);
+    svg += `<line class="g-grid" x1="${L}" y1="${y}" x2="${W-R}" y2="${y}"/><text class="g-txt" x="${L-4}" y="${y+3}" text-anchor="end">${fmt(v)}</text>`;
+  });
+  if(n > 1) svg += `<polyline class="g-line" points="${pts.map((p,i)=> xAt(i)+','+yAt(p.v)).join(' ')}"/>`;
+  pts.forEach((p,i)=>{ svg += `<circle class="g-dot" cx="${xAt(i)}" cy="${yAt(p.v)}" r="3.5"><title>${fmtDate(p.d)}: ${fmt(p.v)}</title></circle>`; });
+  svg += `<text class="g-txt" x="${n===1 ? xAt(0) : L}" y="${H-8}" text-anchor="${n===1 ? 'middle' : 'start'}">${fmtDate(pts[0].d)}</text>`;
+  if(n > 1) svg += `<text class="g-txt" x="${W-R}" y="${H-8}" text-anchor="end">${fmtDate(pts[n-1].d)}</text>`;
+  svg += '</svg>';
+  const vals = pts.map(p=>p.v), last = vals[n-1], change = last - vals[0];
+  let sum = `Best ${fmt(Math.max(...vals))} · Latest ${fmt(last)}`;
+  if(n > 1) sum += ` · ${change >= 0 ? '+' : ''}${fmt(change)} since ${fmtDate(pts[0].d)}`;
+  box.innerHTML = svg + `<div class="graph-sum">${sum}</div>`;
+}
+function resetDay(dayKey){
+  const pre = dayKey + '::';
+  Object.keys(state).forEach(k=>{ if(k.startsWith(pre)) delete state[k]; });
+  Object.keys(chalState).forEach(k=>{ if(k.startsWith(pre)) delete chalState[k]; });
+  saveState(); saveChal();
+}
+
+function loadJSON(key, fallback){
+  try{ const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+  catch(e){ return fallback; }
+}
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+function saveDiff(){ try{ localStorage.setItem(DIFF_KEY, JSON.stringify(diffState)); }catch(e){} }
+function saveLog(){ try{ localStorage.setItem(LOG_KEY, JSON.stringify(logState)); }catch(e){} }
+
+function getDiff(dayKey){ const d = diffState[dayKey]; return DIFF_ORDER.includes(d) ? d : "normal"; }
+function setDiff(dayKey, level){ diffState[dayKey] = level; saveDiff(); }
+
+function logKey(dayKey, diff, exName){ return dayKey + "::" + diff + "::" + exName; }
+function getLog(dayKey, diff, exName){
+  return logState[logKey(dayKey,diff,exName)] || {weight:"", reps:""};
+}
+function setLog(dayKey, diff, exName, field, value){
+  const k = logKey(dayKey,diff,exName);
+  if(!logState[k]) logState[k] = {weight:"", reps:""};
+  logState[k][field] = value;
+  saveLog();
+}
+
+function exKey(dayKey, diff, exName){ return dayKey + "::" + diff + "::" + exName; }
+function isDone(dayKey, diff, exName){ return !!(state[exKey(dayKey, diff, exName)]); }
+function toggleDone(dayKey, diff, exName){
+  const k = exKey(dayKey, diff, exName);
+  state[k] = !state[k];
+  saveState();
+}
+
+function daySections(dayKey){
+  const day = DATA[dayKey];
+  if(day.rest) return [];
+  return day.sectionsByDiff[getDiff(dayKey)];
+}
+
+function countDayProgress(dayKey){
+  const day = DATA[dayKey];
+  if(day.rest) return {done:0,total:0};
+  const secs = daySections(dayKey);
+  let total=0, done=0;
+  secs.forEach(sec=> sec.exercises.forEach(exr=>{
+    total++;
+    if(isDone(dayKey, getDiff(dayKey), exr.name)) done++;
+  }));
+  return {done,total};
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+
+function buildNav(){
+  const nav = document.getElementById('weekNav');
+  nav.innerHTML = '';
+  WEEKDAYS.forEach(wd=>{
+    const dk = SCHEDULE[wd.slot];
+    const day = DATA[dk];
+    const btn = document.createElement('div');
+    btn.className = 'day-tab';
+    btn.dataset.day = dk;
+    const prog = countDayProgress(dk);
+    if(prog.total>0 && prog.done===prog.total) btn.classList.add('complete');
+    btn.innerHTML = `<span class="roman">${MIL[dk].glyph} ${wd.roman}</span>${wd.label}`;
+    btn.addEventListener('click', ()=> selectDay(dk));
+    nav.appendChild(btn);
+  });
+}
+
+function renderExercise(dayKey, diff, exr){
+  const done = isDone(dayKey, diff, exr.name);
+  const log = getLog(dayKey, diff, exr.name);
+  const el = document.createElement('div');
+  el.className = 'exercise' + (done ? ' done':'');
+  el.innerHTML = `
+    <div class="ex-row">
+      <div class="checkbox">${done?'✓':''}</div>
+      <div class="ex-name">${exr.name}</div>
+      <div class="ex-specs">${exr.specs}</div>
+      <div class="expand-arrow">▶</div>
+    </div>
+    <div class="ex-details">
+      <h4>How to Perform</h4>
+      <ul>${exr.how.map(h=>`<li>${h}</li>`).join('')}</ul>
+      <h4>Avoid</h4>
+      <p class="avoid">${exr.avoid}</p>
+      <div class="log-block">
+        <h4 style="margin-top:0;">Log This Working</h4>
+        <div class="log-row">
+          <div class="log-field">
+            <label>Weight (kg/lb)</label>
+            <input type="text" inputmode="decimal" class="log-weight" placeholder="e.g. 12.5" value="${log.weight}">
+          </div>
+          <div class="log-field">
+            <label>Reps Achieved</label>
+            <input type="text" inputmode="numeric" class="log-reps" placeholder="e.g. 12" value="${log.reps}">
+          </div>
+        </div>
+        <div class="log-saved-hint">Logged in the field manual.</div>
+      </div>
+      <div class="graph-block">
+        <h4>Progress</h4>
+        <div class="graph-tabs">
+          <button type="button" class="graph-tab on" data-m="w">Weight</button>
+          <button type="button" class="graph-tab" data-m="r">Reps</button>
+        </div>
+        <div class="graph-box"></div>
+      </div>
+    </div>
+  `;
+  const checkbox = el.querySelector('.checkbox');
+  const row = el.querySelector('.ex-row');
+  const weightInput = el.querySelector('.log-weight');
+  const repsInput = el.querySelector('.log-reps');
+  const savedHint = el.querySelector('.log-saved-hint');
+
+  checkbox.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    toggleDone(dayKey, diff, exr.name);
+    refreshDay(dayKey);
+  });
+
+  row.addEventListener('click', (e)=>{
+    if(e.target === checkbox) return;
+    el.classList.toggle('open');
+  });
+
+  function flashSaved(){
+    savedHint.classList.add('show');
+    clearTimeout(savedHint._t);
+    savedHint._t = setTimeout(()=> savedHint.classList.remove('show'), 1400);
+  }
+
+  weightInput.addEventListener('click', (e)=> e.stopPropagation());
+  repsInput.addEventListener('click', (e)=> e.stopPropagation());
+  const gbox = el.querySelector('.graph-box');
+  const gkey = logKey(dayKey, diff, exr.name);
+  let gmetric = 'w';
+  const paintGraph = ()=> drawGraph(gbox, gkey, gmetric);
+  el.querySelectorAll('.graph-tab').forEach(tb=>{
+    tb.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      gmetric = tb.dataset.m;
+      el.querySelectorAll('.graph-tab').forEach(x=> x.classList.toggle('on', x === tb));
+      paintGraph();
+    });
+  });
+  paintGraph();
+
+  weightInput.addEventListener('input', ()=>{
+    setLog(dayKey, diff, exr.name, 'weight', weightInput.value);
+    recordHist(dayKey, diff, exr.name);
+    paintGraph();
+    flashSaved();
+  });
+  repsInput.addEventListener('input', ()=>{
+    setLog(dayKey, diff, exr.name, 'reps', repsInput.value);
+    recordHist(dayKey, diff, exr.name);
+    paintGraph();
+    flashSaved();
+  });
+
+  const tc = TIER_CHALLENGE[diff];
+  if(tc){
+    const ck = exKey(dayKey, diff, exr.name);
+    const wrap = document.createElement('div');
+    wrap.className = 'bonus-block';
+    const drills = [
+      {k:'circuit', label: `${tc.pushups} push-ups · ${tc.situps} sit-ups · ${tc.pullups} pull-ups · ${tc.burpees} burpees`, sub:'in 2 minutes'},
+      ...(tc.hang ? [{k:'hang', label:'Dead hang', sub:`for ${tc.hang} minutes`}] : []),
+      {k:'run', label: `Run ${String(tc.run).replace('.', ',')} km`, sub:'in 12 minutes'}
+    ];
+    wrap.innerHTML = '<div class="bonus-title">Drill Standard <span class="bonus-sum"></span></div>' +
+      drills.map(d => `<div class="bonus-row"><span class="bonus-name drill-name">${d.label}<small>${d.sub}</small></span><button type="button" class="bonus-pill drill-pill" data-k="${d.k}">Done</button></div>`).join('');
+    const sumEl = wrap.querySelector('.bonus-sum');
+    const paint = ()=>{
+      const cur = chalState[ck] || {};
+      wrap.querySelectorAll('.drill-pill').forEach(b=>{
+        const on = !!cur[b.dataset.k];
+        b.classList.toggle('on', on);
+        b.textContent = on ? '✓' : 'Done';
+      });
+      const n = drills.filter(d=>cur[d.k]).length;
+      sumEl.textContent = '(' + n + '/' + drills.length + ')';
+    };
+    wrap.addEventListener('click', (e)=>{
+      const b = e.target.closest('.drill-pill'); if(!b) return;
+      const cur = chalState[ck] = chalState[ck] || {};
+      cur[b.dataset.k] = !cur[b.dataset.k];
+      saveChal(); paint();
+    });
+    paint();
+    el.appendChild(wrap);
+  }
+
+  return el;
+}
+
+function renderDiffSelector(dayKey){
+  const wrap = document.createElement('div');
+  wrap.className = 'diff-selector';
+  const current = getDiff(dayKey);
+  DIFF_ORDER.forEach(level=>{
+    const btn = document.createElement('div');
+    btn.className = 'diff-btn ' + level + (level===current ? ' active':'');
+    btn.innerHTML = `${DIFF_LABELS[level]}<span class="rank">${({easy:'I',normal:'II',hard:'III',special:'IV'})[level]}</span>`;
+    btn.addEventListener('click', ()=>{
+      setDiff(dayKey, level);
+      refreshDay(dayKey);
+    });
+    wrap.appendChild(btn);
+  });
+  return wrap;
+}
+
+function dayResetRow(dayKey){
+  const row = document.createElement('div');
+  row.className = 'day-reset-row';
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'reset-btn';
+  b.textContent = 'Reset This Day';
+  b.addEventListener('click', ()=>{
+    if(!confirm('Clear all checkmarks and drill checks for "' + DATA[dayKey].name + '"? Your logged weights and progress history stay.')) return;
+    resetDay(dayKey);
+    refreshDay(dayKey);
+    if(dayKey === 'sun') buildRestChecklist();
+  });
+  row.appendChild(b);
+  return row;
+}
+
+function renderDay(dayKey){
+  const day = DATA[dayKey];
+  const container = document.createElement('div');
+  container.className = 'panel';
+  container.dataset.day = dayKey;
+
+  if(day.rest){
+    container.innerHTML = `
+      <div class="day-header">
+        <h2>${day.name}</h2>
+        <div class="flavor">${day.flavor}</div>
+        <div class="meta">${day.metaBase}</div>
+      </div>
+      <div class="rest-day">
+        <div class="sigil-big">✚</div>
+        <h2>Stand Down</h2>
+        <p>No lifting today. Muscle rebuilds off the clock, and recovery is part of the mission plan. Watch your shows, play your games, eat well, sleep well.</p>
+        <p style="font-size:12px; color:var(--sigil-dim); font-family:'JetBrains Mono',monospace; font-style:normal; letter-spacing:0.05em; margin-top:18px;">TAP AN ITEM BELOW FOR ITS BRIEFING</p>
+        <div class="rest-checklist" id="restChecklist"></div>
+      </div>
+    `;
+    container.appendChild(dayResetRow(dayKey));
+    return container;
+  }
+
+  const diff = getDiff(dayKey);
+  const prog = countDayProgress(dayKey);
+  const pct = prog.total ? Math.round((prog.done/prog.total)*100) : 0;
+
+  const header = document.createElement('div');
+  header.className = 'day-header';
+  header.innerHTML = `
+    <h2>${day.name}</h2>
+    <div class="flavor">${day.flavor}</div>
+    <div class="meta">${day.metaBase} — ${prog.done}/${prog.total} completed [${DIFF_LABELS[diff]}]</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+  `;
+  container.appendChild(header);
+
+  container.appendChild(renderDiffSelector(dayKey));
+
+  if(day.warmup){
+    const w = document.createElement('div');
+    w.className = 'warmup-block';
+    w.innerHTML = `<h3>Before You Begin — Warm-up</h3><ul>${day.warmup.map(l=>`<li>${l}</li>`).join('')}</ul>`;
+    container.appendChild(w);
+  }
+
+  const secs = day.sectionsByDiff[diff];
+  secs.forEach((sec, si)=>{
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.innerHTML = `<span class="section-sigil">${sigilFor(sec.label)}</span><span>${sec.label}</span>`;
+    container.appendChild(label);
+
+    if(sec.lore){
+      const lore = document.createElement('div');
+      lore.className = 'section-lore';
+      lore.textContent = ((MIL[dayKey].lore||[])[si]) || sec.lore;
+      container.appendChild(lore);
+    }
+
+    sec.exercises.forEach(exr=>{
+      container.appendChild(renderExercise(dayKey, diff, exr));
+    });
+  });
+
+  if(day.cardio){
+    const c = document.createElement('div');
+    c.className = 'cardio-block';
+    c.innerHTML = `
+      <h3>${day.cardio.title}</h3>
+      ${day.cardio.lines.map(l=>`<p>${l}</p>`).join('')}
+      <p class="target">${day.cardio.target}</p>
+    `;
+    container.appendChild(c);
+  }
+
+  if(day.benchmarks){
+    const b = document.createElement('div');
+    b.className = 'cardio-block';
+    b.innerHTML = `<h3>${day.benchmarks.title}</h3>
+      <div class="benchmark-grid">
+        ${day.benchmarks.items.map(i=>`<div class="benchmark"><span class="num">${i.num}</span><span class="lbl">${i.lbl}</span></div>`).join('')}
+      </div>`;
+    container.appendChild(b);
+  }
+
+  container.appendChild(dayResetRow(dayKey));
+  return container;
+}
+
+function refreshDay(dayKey){
+  const panels = document.getElementById('panels');
+  const old = panels.querySelector(`.panel[data-day="${dayKey}"]`);
+  const wasActive = old && old.classList.contains('active');
+  const openStates = [];
+  if(old){
+    old.querySelectorAll('.exercise').forEach((elx, idx)=>{ openStates[idx] = elx.classList.contains('open'); });
+  }
+  const fresh = renderDay(dayKey);
+  if(wasActive) fresh.classList.add('active');
+  if(old){
+    fresh.querySelectorAll('.exercise').forEach((elx, idx)=>{ if(openStates[idx]) elx.classList.add('open'); });
+    old.replaceWith(fresh);
+  }
+  buildNav();
+  markActiveTab(dayKey);
+}
+
+function markActiveTab(dayKey){
+  document.querySelectorAll('.day-tab').forEach(t=> t.classList.toggle('active', t.dataset.day===dayKey));
+}
+
+function applyBranch(dk){
+  const m = MIL[dk];
+  document.body.dataset.branch = m.key;
+  document.querySelector('.eyebrow').textContent = m.unit + ' · Weekly Discipline';
+  document.querySelector('.sigil-divider').textContent = m.glyph + ' ' + m.glyph + ' ' + m.glyph;
+}
+
+function selectDay(dayKey){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const panel = document.querySelector(`.panel[data-day="${dayKey}"]`);
+  if(panel) panel.classList.add('active');
+  markActiveTab(dayKey);
+  applyBranch(dayKey);
+  localStorage.setItem('grimoire_last_day', dayKey);
+}
+
+function buildRestChecklist(){
+  const restItems = DATA.sun.restItems;
+  const restContainer = document.getElementById('restChecklist');
+  if(!restContainer) return;
+  restContainer.innerHTML = '';
+  restItems.forEach((item, ri)=>{
+    const done = isDone('sun','rest',item.name);
+    const row = document.createElement('div');
+    row.className = 'exercise' + (done?' done':'');
+    row.innerHTML = `
+      <div class="ex-row">
+        <div class="checkbox">${done?'✓':''}</div>
+        <div class="ex-name">${item.name}</div>
+        <div class="expand-arrow">▶</div>
+      </div>
+      <div class="ex-details">
+        <h4>The Briefing</h4>
+        <p>${MIL.sun.lore[ri] || item.lore}</p>
+        <h4>Recovery Note</h4>
+        <p class="avoid" style="color:var(--ward-bright);">${item.tip}</p>
+      </div>
+    `;
+    const checkbox = row.querySelector('.checkbox');
+    const exRow = row.querySelector('.ex-row');
+
+    checkbox.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      toggleDone('sun','rest',item.name);
+      const nowDone = isDone('sun','rest',item.name);
+      row.classList.toggle('done', nowDone);
+      checkbox.textContent = nowDone ? '✓' : '';
+    });
+
+    exRow.addEventListener('click', (e)=>{
+      if(e.target === checkbox) return;
+      row.classList.toggle('open');
+    });
+
+    restContainer.appendChild(row);
+  });
+}
+
+function init(){
+  buildNav();
+  const panels = document.getElementById('panels');
+  DAY_ORDER.forEach(dk=> panels.appendChild(renderDay(dk)));
+  buildRestChecklist();
+
+  const todaySlot = ['sun','mon','tue','wed','thu','fri','sat'][new Date().getDay()];
+  let startDay = SCHEDULE[todaySlot];
+  if(!DAY_ORDER.includes(startDay)) startDay = SCHEDULE.mon;
+  selectDay(startDay);
+
+  function updateSchedUI(){
+    const b = document.getElementById('schedBtn'), n = document.getElementById('schedNote');
+    if(schedMode==='ideal'){
+      b.textContent = 'Back to Original Schedule';
+      n.textContent = 'IDEAL SPLIT: Chest · Legs · Shoulders/Back/Abs · Arms · Arms · Benchmark';
+    } else {
+      b.textContent = 'Move to Ideal Schedule';
+      n.textContent = 'CURRENT SPLIT: Arms · Chest · Shoulders/Back/Abs · Legs · Arms · Benchmark';
+    }
+  }
+  updateSchedUI();
+  document.getElementById('schedBtn').addEventListener('click', ()=>{
+    schedMode = (schedMode==='ideal') ? 'original' : 'ideal';
+    SCHEDULE = SCHEDULES[schedMode];
+    try{ localStorage.setItem(SCHED_KEY, schedMode); }catch(e){}
+    buildNav();
+    const active = document.querySelector('.panel.active')?.dataset.day || SCHEDULE.mon;
+    markActiveTab(active);
+    updateSchedUI();
+  });
+
+  /* ---------- Backup & restore ---------- */
+  const BACKUP_KEYS = [STORAGE_KEY, DIFF_KEY, LOG_KEY, CHAL_KEY, SCHED_KEY, HIST_KEY];
+  const backupMsg = document.getElementById('backupMsg');
+  const say = t => { backupMsg.textContent = t; };
+
+  document.getElementById('exportBtn').addEventListener('click', ()=>{
+    try{
+      const data = {};
+      BACKUP_KEYS.forEach(k=>{ const v = localStorage.getItem(k); if(v !== null) data[k] = v; });
+      const payload = {app:'field-manual', version:1, exported:new Date().toISOString(), data};
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+      const d = new Date();
+      const pad = n => String(n).padStart(2,'0');
+      const name = `field-manual-backup-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.json`;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=> URL.revokeObjectURL(a.href), 4000);
+      say('Backup saved: ' + name);
+    }catch(e){ say('Export failed. Try again.'); }
+  });
+
+  document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('importFile').click());
+  document.getElementById('importFile').addEventListener('change', (ev)=>{
+    const file = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onerror = ()=> say('Could not read that file.');
+    reader.onload = ()=>{
+      let payload;
+      try{ payload = JSON.parse(reader.result); }catch(e){ say('That file is not a valid backup.'); return; }
+      if(!payload || payload.app !== 'field-manual' || typeof payload.data !== 'object' || !payload.data){
+        say('That file is not a Field Manual backup.'); return;
+      }
+      if(!confirm('This replaces all current checkmarks, logs and settings with the backup. Continue?')) return;
+      try{
+        BACKUP_KEYS.forEach(k=>{
+          if(typeof payload.data[k] === 'string') localStorage.setItem(k, payload.data[k]);
+          else localStorage.removeItem(k);
+        });
+      }catch(e){ say('Could not write the backup into storage.'); return; }
+      state = loadJSON(STORAGE_KEY, {});
+      diffState = loadJSON(DIFF_KEY, {});
+      chalState = loadJSON(CHAL_KEY, {});
+      logState = loadJSON(LOG_KEY, {});
+      histState = loadJSON(HIST_KEY, {});
+      try{ schedMode = localStorage.getItem(SCHED_KEY)==='ideal' ? 'ideal' : 'original'; }catch(e){ schedMode = 'original'; }
+      SCHEDULE = SCHEDULES[schedMode];
+      const active = document.querySelector('.panel.active')?.dataset.day || SCHEDULE.mon;
+      panels.innerHTML = '';
+      DAY_ORDER.forEach(dk=> panels.appendChild(renderDay(dk)));
+      buildRestChecklist();
+      buildNav();
+      selectDay(active);
+      updateSchedUI();
+      say('Backup restored.');
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    if(confirm('This will clear all checkmarks for every day and difficulty. Continue?')){
+      state = {}; chalState = {}; saveChal();
+      saveState();
+      const active = document.querySelector('.day-tab.active')?.dataset.day || 'mon';
+      panels.innerHTML = '';
+      DAY_ORDER.forEach(dk=> panels.appendChild(renderDay(dk)));
+      buildRestChecklist();
+      selectDay(active);
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>
